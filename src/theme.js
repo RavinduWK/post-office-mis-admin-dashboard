@@ -1,5 +1,6 @@
 import { createContext, useState, useMemo } from "react";
 import { createTheme } from "@mui/material/styles";
+import { BrowserNotSupportedOutlined } from "@mui/icons-material";
 
 // color design tokens export
 export const tokens = (mode) => ({
@@ -28,8 +29,7 @@ export const tokens = (mode) => ({
           800: "#191513",
           900: "#0d0a0a",
         },
-
-        creamAccent: {
+        cream: {
           100: "#fefef6",
           200: "#fdfdee",
           300: "#fdfde5",
@@ -40,29 +40,51 @@ export const tokens = (mode) => ({
           800: "#646455",
           900: "#32322a",
         },
-
-        redAccent: {
-          100: "#f8dcdb",
-          200: "#f1b9b7",
-          300: "#e99592",
-          400: "#e2726e",
-          500: "#db4f4a",
-          600: "#af3f3b",
-          700: "#832f2c",
-          800: "#58201e",
-          900: "#2c100f",
+        brown: {
+          100: "#eadedc",
+          200: "#d4bdb8",
+          300: "#bf9c95",
+          400: "#a97b71",
+          500: "#945a4e",
+          600: "#76483e",
+          700: "#59362f",
+          800: "#3b241f",
+          900: "#1e1210",
         },
-        blueAccent: {
-          100: "#e1e2fe",
-          200: "#c3c6fd",
-          300: "#a4a9fc",
-          400: "#868dfb",
-          500: "#6870fa",
-          600: "#535ac8",
-          700: "#3e4396",
-          800: "#2a2d64",
-          900: "#151632",
+        lightBrown: {
+          100: "#f7f3ed",
+          200: "#efe7db",
+          300: "#e6dcc8",
+          400: "#ded0b6",
+          500: "#d6c4a4",
+          600: "#ab9d83",
+          700: "#807662",
+          800: "#564e42",
+          900: "#2b2721",
         },
+        maroon: {
+          100: "#e7d3d1",
+          200: "#cea7a3",
+          300: "#b67b74",
+          400: "#9d4f46",
+          500: "#852318",
+          600: "#6a1c13",
+          700: "#50150e",
+          800: "#350e0a",
+          900: "#1b0705",
+        },
+        yellow: {
+          100: "#fcf4da",
+          200: "#fae9b6",
+          300: "#f7de91",
+          400: "#f5d36d",
+          500: "#f2c848",
+          600: "#c2a03a",
+          700: "#91782b",
+          800: "#61501d",
+          900: "#30280e",
+        },
+        white: "#fff",
       }
     : {
         grey: {
@@ -82,12 +104,12 @@ export const tokens = (mode) => ({
           300: "#261f1d",
           400: "#322a26",
           500: "#3f3430",
-          600: "#655d59",
+          600: "#D6C4A4", // changed
           700: "#8c8583",
           800: "#b2aeac",
           900: "#d9d6d6",
         },
-        creamAccent: {
+        cream: {
           100: "#32322a",
           200: "#646455",
           300: "#97977f",
@@ -98,28 +120,51 @@ export const tokens = (mode) => ({
           800: "#fdfdee",
           900: "#fefef6",
         },
-        redAccent: {
-          100: "#2c100f",
-          200: "#58201e",
-          300: "#832f2c",
-          400: "#af3f3b",
-          500: "#db4f4a",
-          600: "#e2726e",
-          700: "#e99592",
-          800: "#f1b9b7",
-          900: "#f8dcdb",
+        brown: {
+          100: "#eadedc",
+          200: "#d4bdb8",
+          300: "#bf9c95",
+          400: "#a97b71",
+          500: "#945a4e",
+          600: "#76483e",
+          700: "#59362f",
+          800: "#3b241f",
+          900: "#1e1210",
         },
-        blueAccent: {
-          100: "#151632",
-          200: "#2a2d64",
-          300: "#3e4396",
-          400: "#535ac8",
-          500: "#6870fa",
-          600: "#868dfb",
-          700: "#a4a9fc",
-          800: "#c3c6fd",
-          900: "#e1e2fe",
+        lightBrown: {
+          100: "#f7f3ed",
+          200: "#efe7db",
+          300: "#e6dcc8",
+          400: "#ded0b6",
+          500: "#d6c4a4",
+          600: "#ab9d83",
+          700: "#807662",
+          800: "#564e42",
+          900: "#2b2721",
         },
+        maroon: {
+          100: "#e7d3d1",
+          200: "#cea7a3",
+          300: "#b67b74",
+          400: "#9d4f46",
+          500: "#852318",
+          600: "#6a1c13",
+          700: "#50150e",
+          800: "#350e0a",
+          900: "#1b0705",
+        },
+        yellow: {
+          100: "#fcf4da",
+          200: "#fae9b6",
+          300: "#f7de91",
+          400: "#f5d36d",
+          500: "#f2c848",
+          600: "#c2a03a",
+          700: "#91782b",
+          800: "#61501d",
+          900: "#30280e",
+        },
+        white: "#fff",
       }),
 });
 
@@ -136,7 +181,7 @@ export const themeSettings = (mode) => {
               main: colors.primary[600],
             },
             secondary: {
-              main: colors.creamAccent[500],
+              main: colors.cream[500],
             },
             neutral: {
               dark: colors.grey[700],
@@ -153,7 +198,7 @@ export const themeSettings = (mode) => {
               main: colors.primary[100],
             },
             secondary: {
-              main: colors.creamAccent[500],
+              main: colors.cream[500],
             },
             neutral: {
               dark: colors.grey[700],
@@ -161,7 +206,7 @@ export const themeSettings = (mode) => {
               light: colors.grey[100],
             },
             background: {
-              default: "#fcfcfc",
+              default: colors.lightBrown[400],
             },
           }),
     },
@@ -202,7 +247,7 @@ export const ColorModeContext = createContext({
 });
 
 export const useMode = () => {
-  const [mode, setMode] = useState("dark");
+  const [mode, setMode] = useState("light");
 
   const colorMode = useMemo(
     () => ({
