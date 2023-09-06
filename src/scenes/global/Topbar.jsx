@@ -1,8 +1,9 @@
-import React, { useState } from "react";
-import { useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
+import { users } from "../../data/users";
 import FlexBetween from "../../components/FlexBetween";
 import { ColorModeContext, tokens } from "../../theme";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
+import { useNavigate } from "react-router-dom";
 import {
   Button,
   Box,
@@ -33,6 +34,17 @@ const TopBar = ({ isCollapsed, setIsCollapsed }) => {
   const isOpen = Boolean(anchorEl);
   const handleClick = (event) => setAnchorEl(event.currentTarget);
   const handleClose = () => setAnchorEl(null);
+
+  // State to hold the current user
+  const [currentUser, setCurrentUser] = useState(null);
+  const navigate = useNavigate();
+  // Simulate fetching the current user
+  useEffect(() => {
+    setCurrentUser(users[1]); // Simulate fetching the current user
+    if (currentUser) {
+      navigate(`/${currentUser.role}`); // Navigate based on role
+    }
+  }, []);
 
   return (
     <Box
@@ -122,18 +134,22 @@ const TopBar = ({ isCollapsed, setIsCollapsed }) => {
               style={{ cursor: "pointer", borderRadius: "50%" }}
             />
           </Box>
+
           <Box textAlign="left">
             <Typography
               color={colors.grey[100]}
               fontWeight="bold"
               fontSize="0.85rem"
             >
-              Mr.Samantha Wickramasinge
+              {currentUser?.name || "Loading..."}{" "}
+              {/* Render the name dynamically */}
             </Typography>
             <Typography color={colors.grey[100]} fontSize="0.75rem">
-              Receptionist
+              {currentUser?.role || "Loading..."}{" "}
+              {/* Render the role dynamically */}
             </Typography>
           </Box>
+
           <ArrowDropDownOutlined sx={{ fontSize: "25px" }} />
         </Button>
         <Menu

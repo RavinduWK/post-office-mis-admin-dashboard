@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   FormControlLabel,
   Checkbox,
@@ -32,6 +32,14 @@ const Login = () => {
   const toggleShowPassword = () => {
     setShowPassword((prevShowPassword) => !prevShowPassword); // Toggle the showPassword state
   };
+
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, []);
 
   return (
     <div className="app-container">

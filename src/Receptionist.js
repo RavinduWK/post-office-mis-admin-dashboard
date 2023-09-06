@@ -6,7 +6,7 @@ import NormalPost from "./scenes/normalpost/index";
 import { ColorModeContext, useMode } from "./theme";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import TopBar from "./scenes/global/Topbar";
-import SideBar from "./scenes/global/Sidebar";
+import SideBar from "./scenes/global/Sidebar_Receptionist";
 import RegisteredPost from "./scenes/registeredpost/index";
 import MoneyOrder from "./scenes/moneyorder/index";
 import PayMoneyOrder from "./scenes/paymoneyorder/index";

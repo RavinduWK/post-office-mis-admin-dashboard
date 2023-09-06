@@ -10,6 +10,10 @@ body,
   font-family: "Source Sans 3", sans-serif;
 }
 
+body {
+  margin: 0;
+}
+
 .app-container {
   background: linear-gradient(90deg, #f2c848, #852318);
   height: 100vh;

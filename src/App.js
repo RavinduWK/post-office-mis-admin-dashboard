@@ -3,7 +3,8 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import Login from "./components/login";
 import ReceptionistInterface from "./Receptionist";
 import PostmasterInterface from "./PostMaster";
-import "./index.css"; // Import your CSS file
+import SupervisorInterface from "./Supervisor";
+import "./index.css";
 
 function App() {
   return (
@@ -12,7 +13,7 @@ function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/receptionist/*" element={<ReceptionistInterface />} />
       <Route path="/postmaster/*" element={<PostmasterInterface />} />
-      <Route path="/supervisor/*" element={<ReceptionistInterface />} />
+      <Route path="/supervisor/*" element={<SupervisorInterface />} />
     </Routes>
   );
 }
