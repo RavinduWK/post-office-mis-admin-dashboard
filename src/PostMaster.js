@@ -7,9 +7,9 @@ import { ColorModeContext, useMode } from "./theme";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import TopBar from "./scenes/global/Topbar";
 import SideBar from "./scenes/global/Sidebar_Postmaster";
-import RegisterEmployee from "./scenes/registeremployee/index";
-import BarChart from "./scenes/postalstatistics";
+import Statistics from "./scenes/postalstatistics/index";
 import GoogleMap from "./scenes/monitorpostman";
+import RegisterEmployee from "./scenes/registeremployee/index";
 
 function PostmasterInterface() {
   const [theme, colorMode] = useMode();
@@ -29,8 +29,9 @@ function PostmasterInterface() {
             <Routes>
               <Route path="" element={<DashBoard />} />
               <Route path="normal-post" element={<RegisterEmployee />} />
-              <Route path="statistics" element={<BarChart />} />
+              <Route path="statistics" element={<Statistics />} />
               <Route path="live-delivery-map" element={<GoogleMap />} />
+              <Route path="register-employee" element={<RegisterEmployee />} />
             </Routes>
           </main>
         </div>

@@ -1,10 +1,5 @@
 import React from "react";
 import Box from "@mui/material/Box";
-import TextField from "@mui/material/TextField";
-import InputLabel from "@mui/material/InputLabel";
-import MenuItem from "@mui/material/MenuItem";
-import FormControl from "@mui/material/FormControl";
-import Select from "@mui/material/Select";
 import { Typography, Button, GlobalStyles } from "@mui/material";
 import CustomTextField from "../../components/CustomTextField";
 import CustomFormControl from "../../components/CustomFormControl";
@@ -45,7 +40,7 @@ function MailForm() {
           marginBottom: "10px",
         }}
       >
-        Normal Post
+        Regsitered Post
       </Typography>
       <Box
         component="form"

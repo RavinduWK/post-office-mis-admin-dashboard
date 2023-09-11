@@ -14,6 +14,7 @@ import LogiPost from "./scenes/logipost/index";
 import FastTrackCourier from "./scenes/fasttrackcourier/index";
 import BillPayments from "./scenes/billpayments/index";
 import BillDetails from "./scenes/billpayments/BillDetails";
+import ConfirmationPage from "./components/ConfirmationPage";
 
 function ReceptionistInterface() {
   const [theme, colorMode] = useMode();
@@ -40,6 +41,10 @@ function ReceptionistInterface() {
               <Route path="fast-track-courier" element={<FastTrackCourier />} />
               <Route path="bill-payments" element={<BillPayments />} />
               <Route path="bill-details/:billType" element={<BillDetails />} />
+              <Route
+                path="normal-post/success"
+                element={<ConfirmationPage />}
+              />
               {/* Add more routes as needed */}
             </Routes>
           </main>
