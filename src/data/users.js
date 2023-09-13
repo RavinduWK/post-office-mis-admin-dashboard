@@ -1,4 +1,3 @@
-// users.js
 export const users = [
   {
     name: "Mr. Samantha Wickramasinge",
