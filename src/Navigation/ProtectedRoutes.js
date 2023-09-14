@@ -2,6 +2,7 @@ import React from "react";
 import { Route, Navigate } from "react-router-dom";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { useEffect, useState } from "react";
+import { CircularProgress } from "@mui/material";
 import getUserRole from "../data/getRole"; // Make sure the path is correct
 
 function ProtectedRoute({ element, roles }) {
@@ -23,7 +24,18 @@ function ProtectedRoute({ element, roles }) {
   }, []);
 
   if (loading) {
-    return null; // or a loading spinner
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+        }}
+      >
+        <CircularProgress />
+      </div>
+    );
   }
 
   if (authStatus.isAuth && (roles ? roles.includes(authStatus.role) : true)) {

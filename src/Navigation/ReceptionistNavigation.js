@@ -15,6 +15,7 @@ import BillPayments from "../containers/Receptionist/BillPayments";
 import BillDetails from "../containers/Receptionist/BillDetails";
 import ConfirmationPage from "../containers/Common/ConfirmationPage";
 import SideBar from "../components/LayoutComponents/Sidebar";
+import SuccessMessage from "../containers/Common/Success";
 
 function ReceptionistInterface() {
   const [theme, colorMode] = useMode();
@@ -50,7 +51,20 @@ function ReceptionistInterface() {
               <Route path="bill-payments" element={<BillPayments />} />
               <Route path="bill-details/:billType" element={<BillDetails />} />
               <Route
+                path="bill-details/:billType/completed"
+                element={<SuccessMessage />}
+              />
+              <Route
                 path="normal-post/success"
+                element={<ConfirmationPage />}
+              />
+              <Route
+                path="registered-post/success"
+                element={<ConfirmationPage />}
+              />
+              <Route path="logi-post/success" element={<ConfirmationPage />} />
+              <Route
+                path="fast-track-courier/success"
                 element={<ConfirmationPage />}
               />
             </Routes>

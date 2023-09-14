@@ -2,19 +2,16 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+import { getStorage } from "firebase/storage";
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyAuYYZazxHt-Kl5vWNfLnfffVrYGDBdgeo",
-  authDomain: "pomis-g6.firebaseapp.com",
-  projectId: "pomis-g6",
-  storageBucket: "pomis-g6.appspot.com",
-  messagingSenderId: "64553418375",
-  appId: "1:64553418375:web:020ebb3213899307264222",
-  measurementId: "G-TQDD31GN0F",
+  apiKey: process.env.REACT_API_KEY,
+  authDomain: process.env.REACT_AUTH_DOMAIN,
+  projectId: process.env.REACT_PROJECT_ID,
+  storageBucket: process.env.REACT_STORAGE_BUCKET,
+  messagingSenderId: process.env.REACT_MESSAGE_ID,
+  appId: process.env.REACT_APP_ID,
+  measurementId: process.env.REACT_MEASUREMENT_ID,
 };
 
 // Initialize Firebase
@@ -23,5 +20,6 @@ const app = initializeApp(firebaseConfig);
 // Initialize Firebase Authentication and get a reference to the service
 const auth = getAuth(app);
 const db = getFirestore(app);
+const imageDB = getStorage(app);
 
-export { auth, db };
+export { auth, db, imageDB };

@@ -3,8 +3,11 @@ import { Box } from "@mui/material";
 import MailForm from "../../components/MailForm";
 import CostCalculator from "../../components/CostCalculator";
 import { fieldsData, postOfficeData } from "../../data/formFields";
+import { useNavigate } from "react-router-dom";
 
 const FastTrackCourier = () => {
+  const navigate = useNavigate();
+
   const senderFields = [
     fieldsData.senderName,
     fieldsData.senderDistrict,
@@ -28,6 +31,7 @@ const FastTrackCourier = () => {
 
   const handleSubmit = () => {
     console.log("Form submitted!");
+    navigate("success");
   };
 
   return (

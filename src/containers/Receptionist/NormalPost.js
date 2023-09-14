@@ -3,8 +3,11 @@ import { Box } from "@mui/material";
 import MailForm from "../../components/MailForm";
 import CostCalculator from "../../components/CostCalculator";
 import { fieldsData, postOfficeData } from "../../data/formFields";
+import { useNavigate } from "react-router-dom";
 
 const NormalPost = () => {
+  const navigate = useNavigate();
+
   const recipientFields = [
     fieldsData.recipientName,
     fieldsData.recipientDistrict,
@@ -21,6 +24,7 @@ const NormalPost = () => {
 
   const handleSubmit = () => {
     console.log("Form submitted!");
+    navigate("success");
   };
 
   return (

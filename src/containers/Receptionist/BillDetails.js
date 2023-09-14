@@ -3,10 +3,12 @@ import { Box } from "@mui/material";
 import BillForm from "../../components/BillForm";
 import { useParams } from "react-router-dom";
 import { billPaymentData, postOfficeData } from "../../data/formFields";
+import { useNavigate } from "react-router-dom";
 
 const BillDetails = () => {
   const [serviceProviderOptions, setServiceProviderOptions] = useState([]);
   const { billType } = useParams();
+  const navigate = useNavigate();
 
   useEffect(() => {
     let options = [];
@@ -70,6 +72,7 @@ const BillDetails = () => {
 
   const handleSubmit = () => {
     console.log("Form submitted!");
+    navigate("completed");
   };
 
   return (

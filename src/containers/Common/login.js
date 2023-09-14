@@ -46,6 +46,7 @@ const Login = () => {
       }
     } catch (error) {
       console.error("Error signing in: ", error);
+      alert("Invalid username or password");
       // Handle error appropriately in your app
     }
   };
@@ -53,13 +54,19 @@ const Login = () => {
   const paperStyle = {
     padding: 20,
     height: 600,
-    width: 400,
+    width: 450,
     position: "fixed",
     top: "50%",
     left: "50%",
     transform: "translate(-50%, -50%)",
   };
-  const btnstyle = { margin: "8px 0", backgroundColor: "#852318" };
+  const btnstyle = {
+    margin: "15px 0",
+    backgroundColor: "#852318",
+    paddingY: "10px",
+    fontSize: "18px",
+    fontWeight: "normal",
+  };
 
   const toggleShowPassword = () => {
     setShowPassword((prevShowPassword) => !prevShowPassword);
@@ -161,7 +168,9 @@ const Login = () => {
               ),
             }}
           />
+
           <FormControlLabel
+            sx={{ marginTop: "10px", marginleft: "2px" }}
             control={<Checkbox name="checkedB" color="primary" />}
             label="Remember me"
           />

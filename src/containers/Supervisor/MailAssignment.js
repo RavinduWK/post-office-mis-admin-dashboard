@@ -21,9 +21,18 @@ const MailAssignment = () => {
   };
 
   const [selectedPostmen, setSelectedPostmen] = useState(
-    Array(rows.length).fill("")
-  ); // Initialize selectedPostmen state
-
+    rows.map((row, index) => {
+      // Set default postmen based on the index or any other criteria
+      const defaultPostmen = [
+        "Postman 1",
+        "Postman 2",
+        "Postman 3",
+        "Postman 4",
+        "Postman 5",
+      ];
+      return defaultPostmen[index % defaultPostmen.length];
+    })
+  );
   const handlePostmanChange = (event, index) => {
     const updatedPostmen = [...selectedPostmen];
     updatedPostmen[index] = event.target.value;

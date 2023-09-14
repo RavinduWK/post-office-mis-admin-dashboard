@@ -1,15 +1,14 @@
 import React, { useState, useContext, useEffect } from "react";
-import { users } from "../../data/users";
 import FlexBetween from "./FlexBetween";
 import { ColorModeContext, tokens } from "../../styles/theme";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
-import { useNavigate } from "react-router-dom";
+import { auth } from "../../config/firebase";
+import { getFirestore, doc, getDoc } from "firebase/firestore";
 import {
   Button,
   Box,
   Typography,
   IconButton,
-  InputBase,
   Menu,
   MenuItem,
   useTheme,
@@ -19,7 +18,6 @@ import {
   LightModeOutlined,
   DarkModeOutlined,
   Menu as MenuIcon,
-  Search,
   SettingsOutlined,
   NotificationsOutlined,
   ArrowDropDownOutlined,
@@ -35,14 +33,30 @@ const TopBar = ({ isCollapsed, setIsCollapsed, role }) => {
   const handleClick = (event) => setAnchorEl(event.currentTarget);
   const handleClose = () => setAnchorEl(null);
 
-  const [currentUser, setCurrentUser] = useState(null);
-  const navigate = useNavigate();
+  const [userDetails, setUserDetails] = useState(null);
 
   useEffect(() => {
-    setCurrentUser(users[1]);
-    if (currentUser) {
-      navigate(`/${currentUser.role}`);
-    }
+    const fetchUserDetails = async () => {
+      try {
+        const user = auth.currentUser;
+
+        if (user) {
+          const db = getFirestore();
+          const userDoc = await getDoc(doc(db, "employees", user.uid));
+          if (userDoc.exists()) {
+            setUserDetails(userDoc.data());
+          } else {
+            console.error("No such user!");
+          }
+        } else {
+          console.error("No user logged in!");
+        }
+      } catch (error) {
+        console.error("Error fetching user details:", error);
+      }
+    };
+
+    fetchUserDetails();
   }, []);
 
   return (
@@ -113,6 +127,7 @@ const TopBar = ({ isCollapsed, setIsCollapsed, role }) => {
         <IconButton>
           <SettingsOutlined sx={{ fontSize: "25px" }} />
         </IconButton>
+        {/* User Tile */}
         <Button
           onClick={handleClick}
           sx={{
@@ -126,9 +141,9 @@ const TopBar = ({ isCollapsed, setIsCollapsed, role }) => {
           <Box sx={{ objectFit: "cover" }}>
             <img
               alt="profile-user"
-              height="38px"
-              width="38px"
-              src={`../../assets/user.png`}
+              height="45px"
+              width="45px"
+              src={userDetails?.profile_photo}
               style={{ cursor: "pointer", borderRadius: "50%" }}
             />
           </Box>
@@ -139,10 +154,10 @@ const TopBar = ({ isCollapsed, setIsCollapsed, role }) => {
               fontWeight="bold"
               fontSize="0.85rem"
             >
-              {currentUser?.name || "Loading..."}{" "}
+              {userDetails?.name || "Loading..."}{" "}
             </Typography>
             <Typography color={colors.grey[100]} fontSize="0.75rem">
-              {currentUser?.role || "Loading..."}{" "}
+              {userDetails?.role || "Loading..."}{" "}
             </Typography>
           </Box>
 
