@@ -7,16 +7,27 @@ import { SignOut } from "phosphor-react";
 import { receptionistMenuItems } from "../../data/menuItems";
 import { postmasterMenuItems } from "../../data/menuItems";
 import { supervisorMenuItems } from "../../data/menuItems";
+import { getAuth, signOut } from "firebase/auth";
 
 const Item = ({ title, to, icon, selected, setSelected, isCollapsed }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const navigate = useNavigate();
 
+  const handleLogout = async () => {
+    const auth = getAuth();
+    try {
+      await signOut(auth);
+      navigate("/login");
+    } catch (error) {
+      console.error("Error signing out: ", error);
+    }
+  };
+
   const handleClick = () => {
     setSelected(title);
     if (title === "Log Out") {
-      navigate("/");
+      handleLogout();
     } else {
       navigate(to);
     }

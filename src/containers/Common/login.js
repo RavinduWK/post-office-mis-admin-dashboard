@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   FormControlLabel,
   Checkbox,
@@ -14,9 +15,40 @@ import {
 } from "@mui/material";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../../config/firebase";
+import getUserRole from "../../data/getRole";
 
 const Login = () => {
+  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+
+  const handleSignIn = async (e) => {
+    e.preventDefault();
+
+    try {
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      console.log("User signed in successfully");
+      const user = userCredential.user;
+      const role = await getUserRole(user.uid);
+      if (role === "Receptionist") {
+        navigate("/receptionist/");
+      } else if (role === "Postmaster") {
+        navigate("/postmaster/");
+      } else if (role === "Supervisor") {
+        navigate("/supervisor/");
+      }
+    } catch (error) {
+      console.error("Error signing in: ", error);
+      // Handle error appropriately in your app
+    }
+  };
 
   const paperStyle = {
     padding: 20,
@@ -76,6 +108,8 @@ const Login = () => {
             placeholder="Enter email address"
             fullWidth
             required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             sx={{
               backgroundColor: "#E6E6E6",
               fontSize: "16px",
@@ -101,6 +135,8 @@ const Login = () => {
             type={showPassword ? "text" : "password"}
             fullWidth
             required
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             sx={{
               backgroundColor: "#E6E6E6",
               fontSize: "16px",
@@ -136,6 +172,7 @@ const Login = () => {
             variant="contained"
             style={btnstyle}
             fullWidth
+            onClick={handleSignIn}
           >
             Sign in
           </Button>
