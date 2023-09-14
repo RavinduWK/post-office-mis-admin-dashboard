@@ -7,6 +7,9 @@ import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import SmallBoxes from "../../components/SmallBoxes";
 import BarChart from "./../../components/Charts/BarChart";
+import { Chart, registerables } from "chart.js";
+
+Chart.register(...registerables);
 
 const Statistics = () => {
   const theme = useTheme();
@@ -221,10 +224,25 @@ const Statistics = () => {
           </Box>
         </Box>
       </Box>
-
-      <Button variant="contained" color="primary" onClick={printDocument}>
-        Print
-      </Button>
+      <Box display="flex" justifyContent="Center" marginBottom={5}>
+        <Button
+          onClick={printDocument}
+          variant="contained"
+          sx={{
+            marginTop: "60px",
+            backgroundColor: "#852318",
+            color: "white",
+            width: "450px",
+            px: 10,
+            py: 1,
+            textTransform: "none",
+            fontSize: "18px",
+            borderRadius: "6px",
+          }}
+        >
+          Print Statistical Report
+        </Button>
+      </Box>
     </Box>
   );
 };

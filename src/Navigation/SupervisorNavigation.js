@@ -6,7 +6,9 @@ import { ColorModeContext, useMode } from "../styles/theme";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import TopBar from "../components/LayoutComponents/Topbar";
 import SideBar from "../components/LayoutComponents/Sidebar";
-import RegisterEmployee from "../containers/Postmaster/RegisterEmployee";
+import RegisterEmployee from "../containers/Supervisor/RegisterEmployee";
+import MailAssignment from "../containers/Supervisor/MailAssignment";
+import MailTransfer from "../containers/Supervisor/MailTransfer";
 
 function SupervisorInterface() {
   const [theme, colorMode] = useMode();
@@ -34,6 +36,8 @@ function SupervisorInterface() {
             <Routes>
               <Route path="" element={<DashBoard role="Supervisor" />} />
               <Route path="register-employee" element={<RegisterEmployee />} />
+              <Route path="mail-assignment" element={<MailAssignment />} />
+              <Route path="mail-transfer" element={<MailTransfer />} />
             </Routes>
           </main>
         </div>

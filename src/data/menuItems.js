@@ -76,7 +76,7 @@ export const postmasterMenuItems = [
     items: [
       {
         title: "Dashboard",
-        to: "/supervisor/",
+        to: "/postmaster/",
         icon: <GridViewIcon />,
       },
     ],

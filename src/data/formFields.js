@@ -4,14 +4,6 @@ export const postOfficeOptions = [
   { label: "Colombo", value: 30 },
 ];
 
-const employeeRoles = [
-  { label: "Postmaster", value: 10 },
-  { label: "Supervisor", value: 20 },
-  { label: "Receptionist", value: 30 },
-  { label: "Postman", value: 40 },
-  { label: "Disparch Record Manager", value: 50 },
-];
-
 export const fieldsData = {
   senderName: { label: "Sender's Name", id: "sender_name", type: "text" },
   senderDistrict: {
@@ -152,6 +144,6 @@ export const employeeRegisterData = {
     label: "Employee Role",
     id: "employee_role",
     type: "formControl",
-    options: employeeRoles,
+    options: [],
   },
 };

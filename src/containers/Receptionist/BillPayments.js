@@ -79,7 +79,7 @@ const BillPayments = () => {
 
   return (
     <div>
-      <h1>Bill Payments Content Here</h1>
+      <h1>Bill Payments</h1>
       <Box
         display="flex"
         marginTop="60px"

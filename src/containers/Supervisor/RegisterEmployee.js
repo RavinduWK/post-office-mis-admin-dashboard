@@ -5,8 +5,6 @@ import { employeeRegisterData } from "../../data/formFields";
 
 const RegisterEmployee = () => {
   const allRoles = [
-    { label: "Postmaster", value: 10 },
-    { label: "Supervisor", value: 20 },
     { label: "Receptionist", value: 30 },
     { label: "Postman", value: 40 },
     { label: "Disparch Record Manager", value: 50 },

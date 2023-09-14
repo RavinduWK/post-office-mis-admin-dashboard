@@ -9,6 +9,7 @@ import SideBar from "../components/LayoutComponents/Sidebar";
 import Statistics from "../containers/Postmaster/PostOfficeStatistics";
 import MonitorPostman from "../containers/Postmaster/MonitorPostman";
 import RegisterEmployee from "../containers/Postmaster/RegisterEmployee";
+import ViewFeedback from "../containers/Postmaster/ViewFeedback";
 
 function PostmasterInterface() {
   const [theme, colorMode] = useMode();
@@ -39,6 +40,7 @@ function PostmasterInterface() {
               <Route path="statistics" element={<Statistics />} />
               <Route path="live-delivery-map" element={<MonitorPostman />} />
               <Route path="register-employee" element={<RegisterEmployee />} />
+              <Route path="feedback" element={<ViewFeedback />} />
             </Routes>
           </main>
         </div>

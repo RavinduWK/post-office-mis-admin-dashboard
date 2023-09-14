@@ -47,7 +47,17 @@ const SideBar = ({ isCollapsed, setIsCollapsed, role }) => {
 
   const menuItems = roleMenuItems[role] || [];
 
-  const [selected, setSelected] = useState(menuItems[0]?.title || "");
+  const findDashboardTitle = () => {
+    for (let section of menuItems) {
+      for (let item of section.items) {
+        if (item.to === `/${role}/`) {
+          return item.title;
+        }
+      }
+    }
+  };
+
+  const [selected, setSelected] = useState(findDashboardTitle());
 
   return (
     <Box>
