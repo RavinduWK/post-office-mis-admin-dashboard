@@ -1,59 +1,11 @@
-import React, { useState } from "react";
+import React from "react";
 import Box from "@mui/material/Box";
 import { Typography, Button, GlobalStyles } from "@mui/material";
 import CustomTextField from "./CustomComponents/CustomTextField";
 import CustomFormControl from "./CustomComponents/CustomFormControl";
-import { useAddressSuggestions } from "../utils/AddressSuggestions";
 
 function MailForm({ formTitle, fieldsGroups, selectionGroups, onFormSubmit }) {
   const [formState, setFormState] = React.useState({});
-  const [senderCity, setSenderCity] = useState("");
-  const [recipientCity, setRecipientCity] = useState("");
-  const [addressInput, setAddressInput] = useState("");
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const [filteredSuggestions, setFilteredSuggestions] = useState([]);
-
-  const senderAddressSuggestions = useAddressSuggestions(senderCity);
-  const recipientAddressSuggestions = useAddressSuggestions(recipientCity);
-
-  const handleAddressInput = (id, event) => {
-    const inputText = event.target.value;
-    setAddressInput(inputText);
-    const currentSuggestions =
-      id === "sender_address"
-        ? senderAddressSuggestions
-        : recipientAddressSuggestions;
-
-    if (inputText === "") {
-      if (id.endsWith("city")) {
-        setFilteredSuggestions(currentSuggestions);
-      } else {
-        setFilteredSuggestions([]);
-        setShowSuggestions(false);
-      }
-    } else {
-      const filteredSuggestions = currentSuggestions.filter((suggestion) =>
-        suggestion.toLowerCase().includes(inputText.toLowerCase())
-      );
-
-      if (filteredSuggestions.length === 0) {
-        setFilteredSuggestions([]);
-        setShowSuggestions(false);
-      } else {
-        setFilteredSuggestions(filteredSuggestions);
-        setShowSuggestions(true);
-      }
-    }
-  };
-
-  const handleAddressSelect = (id, address) => {
-    setFormState((prevState) => ({
-      ...prevState,
-      [id]: address,
-    }));
-    setAddressInput(address);
-    setShowSuggestions(false);
-  };
 
   const handleSubmit = () => {
     if (typeof onFormSubmit === "function") {
@@ -68,12 +20,6 @@ function MailForm({ formTitle, fieldsGroups, selectionGroups, onFormSubmit }) {
       ...formState,
       [id]: event.target.value,
     });
-
-    if (id === "sender_city") {
-      setSenderCity(event.target.value);
-    } else if (id === "recipient_city") {
-      setRecipientCity(event.target.value);
-    }
   };
 
   return (
@@ -135,18 +81,14 @@ function MailForm({ formTitle, fieldsGroups, selectionGroups, onFormSubmit }) {
               {group.label}
             </Typography>
             {group.fields.map((field) => (
-              <React.Fragment key={field.id}>
-                <CustomTextField
-                  label={field.label}
-                  id={field.id}
-                  required
-                  value={formState[field.id] || ""}
-                  onAddressInput={handleAddressInput}
-                  onSuggestionSelect={handleAddressSelect}
-                  onChange={handleChange(field.id)}
-                  suggestions={showSuggestions ? filteredSuggestions : []}
-                />
-              </React.Fragment>
+              <CustomTextField
+                label={field.label}
+                id={field.id}
+                required
+                key={field.id}
+                value={formState[field.id] || ""}
+                onChange={handleChange(field.id)}
+              />
             ))}
           </React.Fragment>
         ))}

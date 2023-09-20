@@ -12,6 +12,8 @@ import { generateRandomString } from "../../utils/SecurityCode";
 
 const NormalPost = () => {
   const navigate = useNavigate();
+  const [securityNumber, setSecurityNumber] = useState(""); // Add state to store security number
+  const [cost, setCost] = useState(""); // Add state to store cost
 
   const recipientFields = [
     fieldsData.recipientName,
@@ -46,7 +48,7 @@ const NormalPost = () => {
       await setDoc(docRef, { latestId: newId });
 
       // Step 3: Create a new mail item with the new ID
-      const mailId = `10 ${newId}`;
+      const mailId = `10${newId}`;
       await setDoc(doc(db, "MailServiceItems", mailId), {
         ...formState,
         type: "normal post",
@@ -54,7 +56,15 @@ const NormalPost = () => {
       });
 
       console.log("Document successfully written with ID: ", mailId);
-      navigate("success");
+
+      const securityNumber = generateRandomString(10); // Generate a security number
+      const formCost = formState.cost;
+      setSecurityNumber(securityNumber);
+      setCost(formCost);
+      console.log(cost);
+      navigate("success", {
+        state: { mailId, securityNumber, cost },
+      });
     } catch (e) {
       console.error("Error adding document: ", e);
     }

@@ -1,14 +1,18 @@
-import React, { useRef } from "react";
+import React, { useState, useRef } from "react";
 import { Box, Divider, Button, TextField, GlobalStyles } from "@mui/material";
 import Barcode from "react-barcode";
 import { toJpeg } from "html-to-image";
+import { useLocation } from "react-router-dom";
 
 function ConfirmationPage() {
-  const postageCost = 50;
+  const [senderEmail, setSendersEmail] = useState("");
+  const location = useLocation();
+  const { mailId, securityNumber, cost } = location.state || {};
   const receiptRef = useRef(null);
   const barcodeRef = useRef(null);
   const labelRef = useRef(null);
 
+  console.log(cost);
   const printReceipt = () => {
     const node = document.createElement("div");
     node.style.display = "flex";
@@ -65,7 +69,21 @@ function ConfirmationPage() {
       link.click();
     });
   };
+  const handleSendEmail = () => {
+    if (senderEmail.trim() === "") {
+      alert("Please enter a recipient's email address.");
+      return;
+    }
 
+    // Define the email content
+    const emailContent = {
+      to: senderEmail,
+      subject: "Mail Receipt",
+      text: `Thank you for using our service!\n\nYour PID: ${mailId}\nSecurity Number: ${securityNumber}`,
+    };
+
+    // Send the email
+  };
   return (
     <Box
       sx={{
@@ -104,8 +122,8 @@ function ConfirmationPage() {
         >
           <Box ref={receiptRef}>
             <Box>
-              <div>PID: 1230445</div>
-              <div>Security Number: 124512412544</div>
+              <div>PID: {mailId} </div>
+              <div>Security Number: {securityNumber}</div>
             </Box>
           </Box>
 
@@ -127,7 +145,7 @@ function ConfirmationPage() {
             }}
           >
             <Box ref={barcodeRef}>
-              <Barcode value="1230445" width={1.2} height={60} />
+              <Barcode value={mailId} width={1.2} height={60} />
             </Box>
 
             <Button
@@ -185,7 +203,7 @@ function ConfirmationPage() {
                   fill="#000"
                   fontSize="12"
                 >
-                  Rs. {postageCost}.00
+                  Rs. {cost}.00
                 </text>
               </svg>
             </Box>
@@ -252,11 +270,14 @@ function ConfirmationPage() {
               required
               id="outlined-required"
               label="Sender's email address"
+              value={senderEmail}
+              onChange={(e) => setSendersEmail(e.target.value)}
             />
           </div>
 
           <Button
             variant="contained"
+            onClick={handleSendEmail}
             sx={{
               backgroundColor: "#852318",
               color: "white",

@@ -1,16 +1,7 @@
 import React from "react";
 import { TextField, GlobalStyles } from "@mui/material";
 
-const CustomTextField = ({
-  suggestions = [],
-  onSuggestionSelect,
-  onAddressInput,
-  label,
-  id,
-  required = false,
-  value,
-  onChange,
-}) => {
+const CustomTextField = ({ label, id, required = false, value, onChange }) => {
   return (
     <div>
       <GlobalStyles
@@ -21,7 +12,6 @@ const CustomTextField = ({
         }}
       />
       <TextField
-        onInput={(e) => onAddressInput(id, e)}
         required={required}
         id={id}
         label={label}
@@ -42,15 +32,6 @@ const CustomTextField = ({
           style: { fontSize: 17, color: "#696969" },
         }}
       />
-      {suggestions.length > 0 && (
-        <div>
-          {suggestions.map((suggestion, index) => (
-            <div key={index} onClick={() => onSuggestionSelect(id, suggestion)}>
-              {suggestion}
-            </div>
-          ))}
-        </div>
-      )}
     </div>
   );
 };
