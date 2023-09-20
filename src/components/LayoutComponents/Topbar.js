@@ -22,18 +22,27 @@ import {
   NotificationsOutlined,
   ArrowDropDownOutlined,
 } from "@mui/icons-material";
+import ProfilePopup from "../../containers/Common/ProfilePage";
 
 const TopBar = ({ isCollapsed, setIsCollapsed, role }) => {
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [userDetails, setUserDetails] = useState(null);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const colorMode = useContext(ColorModeContext);
-
-  const [anchorEl, setAnchorEl] = useState(null);
   const isOpen = Boolean(anchorEl);
   const handleClick = (event) => setAnchorEl(event.currentTarget);
   const handleClose = () => setAnchorEl(null);
 
-  const [userDetails, setUserDetails] = useState(null);
+  const handleProfileOpen = () => {
+    setIsProfileOpen(true);
+    setAnchorEl(null);
+  };
+
+  const handleProfileClose = () => {
+    setIsProfileOpen(false);
+  };
 
   useEffect(() => {
     const fetchUserDetails = async () => {
@@ -171,13 +180,17 @@ const TopBar = ({ isCollapsed, setIsCollapsed, role }) => {
           transformOrigin={{ vertical: "top", horizontal: "right" }}
           sx={{ "& .MuiPaper-root": { width: "250px", marginLeft: "160px" } }}
         >
-          <MenuItem onClick={handleClose}>Profile</MenuItem>
+          <MenuItem onClick={handleProfileOpen}>Profile</MenuItem>{" "}
+          {/* Updated this line */}
           <MenuItem onClick={handleClose}>Settings</MenuItem>
           <MenuItem onClick={handleClose}>Help</MenuItem>
           <Divider />
           <MenuItem onClick={handleClose}>Log Out</MenuItem>
         </Menu>
       </FlexBetween>
+      {isProfileOpen && userDetails && (
+        <ProfilePopup userDetails={userDetails} onClose={handleProfileClose} />
+      )}
     </Box>
   );
 };

@@ -2,7 +2,13 @@ import React from "react";
 import { Box } from "@mui/material";
 import MailForm from "../../components/MailForm";
 import CostCalculator from "../../components/CostCalculator";
+import { generateRandomString } from "../../utils/SecurityCode";
 import { fieldsData, postOfficeData } from "../../data/formFields";
+
+import { doc, getDoc, setDoc } from "firebase/firestore";
+
+import { db } from "../../config/firebase";
+import { FlashOnRounded } from "@mui/icons-material";
 
 const MoneyOrder = () => {
   const senderFields = [fieldsData.senderName, fieldsData.senderNIC];
@@ -16,8 +22,37 @@ const MoneyOrder = () => {
     postOfficeData.destinationPostOffice,
   ];
 
-  const handleSubmit = () => {
-    console.log("Form submitted!");
+  const handleSubmit = async (formState) => {
+    try {
+      // Step 1: Get the latest ID from the "metadata" document
+      const docRef = doc(db, "metadata", "mailService");
+      const docSnap = await getDoc(docRef);
+
+      let newId;
+      if (docSnap.exists()) {
+        // Increment the latest ID to generate a new ID
+        newId = docSnap.data().latestId + 1;
+      } else {
+        // If the "metadata" document does not exist, initialize the ID to 100000
+        newId = 100000;
+      }
+
+      // Step 2: Update the "metadata" document with the new ID
+      await setDoc(docRef, { latestId: newId });
+
+      // Step 3: Create a new mail item with the new ID
+      const mailId = `${newId}MO`;
+      await setDoc(doc(db, "MailServiceItems", mailId), {
+        ...formState,
+        type: "money order",
+        paid: false,
+        security_number: generateRandomString(10), // Generate a random 10-digit security number
+      });
+
+      console.log("Document successfully written with ID: ", mailId);
+    } catch (e) {
+      console.error("Error adding document: ", e);
+    }
   };
 
   return (
@@ -36,7 +71,7 @@ const MoneyOrder = () => {
             { label: "Transaction Details", fields: transactionFields },
           ]}
           selectionGroups={[{ fields: postOfficeFields }]}
-          onSubmit={handleSubmit}
+          onFormSubmit={handleSubmit}
         />
         <CostCalculator />
       </Box>

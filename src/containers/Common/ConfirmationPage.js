@@ -7,6 +7,7 @@ function ConfirmationPage() {
   const postageCost = 50;
   const receiptRef = useRef(null);
   const barcodeRef = useRef(null);
+  const labelRef = useRef(null);
 
   const printReceipt = () => {
     const node = document.createElement("div");
@@ -40,7 +41,26 @@ function ConfirmationPage() {
       dataUrl
     ) {
       var link = document.createElement("a");
-      link.download = "receipt.jpeg";
+      link.download = "barcode.jpeg";
+      link.href = dataUrl;
+      link.click();
+    });
+  };
+
+  const printLabel = () => {
+    const node = document.createElement("div");
+    node.style.display = "flex";
+    node.style.justifyContent = "center";
+    node.style.alignItems = "center";
+
+    node.style.backgroundColor = "white";
+    node.appendChild(labelRef.current.cloneNode(true));
+
+    toJpeg(node, { quality: 0.95, width: 100, height: 100 }).then(function (
+      dataUrl
+    ) {
+      var link = document.createElement("a");
+      link.download = "barcode.jpeg";
       link.href = dataUrl;
       link.click();
     });
@@ -64,7 +84,6 @@ function ConfirmationPage() {
         sx={{ display: "flex", flexDirection: "row", alignItems: "flex-start" }}
       >
         <Box
-          ref={receiptRef}
           sx={{
             display: "flex",
             flexDirection: "column",
@@ -83,8 +102,13 @@ function ConfirmationPage() {
             fontSize: "20px",
           }}
         >
-          <div>PID: 1230445</div>
-          <div>Security Number: 124512412544</div>
+          <Box ref={receiptRef}>
+            <Box>
+              <div>PID: 1230445</div>
+              <div>Security Number: 124512412544</div>
+            </Box>
+          </Box>
+
           <Divider
             sx={{
               marginTop: 5,
@@ -94,9 +118,32 @@ function ConfirmationPage() {
             }}
           />
 
-          <Box>
-            <Barcode ref={barcodeRef} value="1230445" width={1.2} height={60} />
-            <Button variant="contained" onClick={printBarCode}>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <Box ref={barcodeRef}>
+              <Barcode value="1230445" width={1.2} height={60} />
+            </Box>
+
+            <Button
+              variant="contained"
+              onClick={printBarCode}
+              sx={{
+                backgroundColor: "#545454",
+                color: "white",
+                my: 2,
+                px: 4,
+                textTransform: "none",
+                marginLeft: "14px",
+                marginBottom: "50px",
+                fontSize: "14px",
+              }}
+            >
               Print Barcode
             </Button>
           </Box>
@@ -104,34 +151,60 @@ function ConfirmationPage() {
           <Box
             sx={{
               display: "flex",
-              flexDirection: "column",
+              flexDirection: "row",
+              justifyContent: "flex-start",
               alignItems: "center",
-              justifyContent: "center",
-              margin: "0 auto",
-              padding: "10px",
-              marginBottom: "5px",
             }}
           >
-            <svg width="100" height="100">
-              <circle
-                cx="50"
-                cy="50"
-                r="40"
-                stroke="blue"
-                strokeWidth="4"
-                fill="yellow"
-              />
-              <text
-                x="50"
-                y="50"
-                alignmentBaseline="middle"
-                textAnchor="middle"
-                fill="#000"
-                fontSize="12"
-              >
-                ${postageCost}
-              </text>
-            </svg>
+            <Box
+              ref={labelRef}
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                margin: "0 auto",
+                padding: "10px",
+                marginBottom: "5px",
+              }}
+            >
+              <svg width="100" height="100">
+                <circle
+                  cx="50"
+                  cy="50"
+                  r="40"
+                  stroke="blue"
+                  strokeWidth="4"
+                  fill="yellow"
+                />
+                <text
+                  x="50"
+                  y="50"
+                  alignmentBaseline="middle"
+                  textAnchor="middle"
+                  fill="#000"
+                  fontSize="12"
+                >
+                  Rs. {postageCost}.00
+                </text>
+              </svg>
+            </Box>
+            <Button
+              variant="contained"
+              onClick={printLabel}
+              sx={{
+                backgroundColor: "#545454",
+                color: "white",
+                my: 2,
+                px: 4,
+                textTransform: "none",
+                marginLeft: "14px",
+                marginBottom: "50px",
+                fontSize: "14px",
+              }}
+            >
+              Print Label
+            </Button>
           </Box>
         </Box>
 

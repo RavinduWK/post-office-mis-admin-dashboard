@@ -2,6 +2,37 @@ import React from "react";
 import { Box } from "@mui/material";
 import MailForm from "../../components/MailForm";
 import { employeeRegisterData } from "../../data/formFields";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { getFirestore, doc, setDoc } from "firebase/firestore";
+import { app, auth } from "../../config/firebase";
+
+const handleSubmit = async (formData) => {
+  try {
+    const userCredential = await createUserWithEmailAndPassword(
+      auth,
+      formData.employeeEmail,
+      formData.accountPassword
+    );
+
+    const user = userCredential.user;
+
+    const db = getFirestore(app);
+    await setDoc(doc(db, "employees", user.uid), {
+      name: formData.employeeFullName,
+      email: formData.employeeEmail,
+      NIC: formData.employeeNIC,
+      DOB: formData.employeeDateOfBirth,
+      contact_number: formData.employeeContactNumber,
+      role: formData.employeeRole,
+    });
+
+    console.log("User registered and data saved to Firestore");
+    return Promise.resolve();
+  } catch (error) {
+    console.error("Error registering user:", error);
+    return Promise.reject(error);
+  }
+};
 
 const RegisterEmployee = () => {
   const allRoles = [
@@ -27,10 +58,6 @@ const RegisterEmployee = () => {
       options: allRoles,
     },
   ];
-
-  const handleSubmit = () => {
-    console.log("Form submitted!");
-  };
 
   return (
     <div>

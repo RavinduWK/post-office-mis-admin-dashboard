@@ -75,6 +75,11 @@ export const billPaymentData = {
     id: "customer_district",
     type: "text",
   },
+  customerCity: {
+    label: "Customer's City",
+    id: "customer_city",
+    type: "text",
+  },
   customerAddress: {
     label: "Customer's Address",
     id: "customer_address",

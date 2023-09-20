@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Table,
@@ -9,13 +9,51 @@ import {
   Button,
 } from "@mui/material";
 import { moneyOrderData } from "../../data/moneyOrderData";
+import {
+  collection,
+  getFirestore,
+  query,
+  where,
+  onSnapshot,
+  updateDoc,
+  doc,
+} from "firebase/firestore";
+import { db } from "../../config/firebase";
 
 const PayMoneyOrder = () => {
-  const rows = moneyOrderData(); // Read the dummy data
+  const [rows, setRows] = useState([]);
+
   const headerCellStyle = {
     fontWeight: "bold",
     color: "white",
     fontSize: "1.1rem",
+  };
+
+  useEffect(() => {
+    const q = query(
+      collection(db, "MailServiceItems"),
+      where("paid", "==", false)
+    );
+
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      let rowData = [];
+      querySnapshot.forEach((doc) => {
+        rowData.push({ pid: doc.id, ...doc.data() });
+      });
+      setRows(rowData);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const handlePay = async (pid) => {
+    try {
+      const docRef = doc(db, "MailServiceItems", pid);
+      await updateDoc(docRef, { paid: true });
+      console.log("Payment successful for PID:", pid);
+    } catch (e) {
+      console.error("Error updating document: ", e);
+    }
   };
 
   return (
@@ -46,15 +84,16 @@ const PayMoneyOrder = () => {
           {rows.map((row, index) => (
             <TableRow key={index} sx={{ backgroundColor: "white" }}>
               <TableCell>{row.pid}</TableCell>
-              <TableCell>{row.recipientId}</TableCell>
-              <TableCell>{row.recipientName}</TableCell>
-              <TableCell>{row.securityCode}</TableCell>
-              <TableCell>{row.amount}</TableCell>
+              <TableCell>{row.recipient_nic}</TableCell>
+              <TableCell>{row.recipient_name}</TableCell>
+              <TableCell>{row.security_number}</TableCell>
+              <TableCell>{row.transfer_amount}</TableCell>
               <TableCell>
                 <Button
                   variant="contained"
                   color="primary"
                   sx={{ width: "100px", fontSize: "0.75em" }}
+                  onClick={() => handlePay(row.pid)}
                 >
                   Pay
                 </Button>
