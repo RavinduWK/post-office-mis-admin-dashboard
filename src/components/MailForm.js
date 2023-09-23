@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import {
   Box,
+  GlobalStyles,
   Typography,
   Button,
   Paper,
-  GlobalStyles,
   List,
   ListItem,
 } from "@mui/material";
@@ -25,23 +25,19 @@ function MailForm({ formTitle, fieldsGroups, selectionGroups, onFormSubmit }) {
   const [formState, setFormState] = useState({});
   const [recipientCity, setRecipientCity] = useState("");
   const [senderCity, setSenderCity] = useState("");
-  const [senderAddressInput, setSenderAddressInput] = useState("");
   const [senderSuggestedAddresses, setSenderSuggestedAddresses] = useState([]);
-  const [addressInput, setAddressInput] = useState("");
-  const [suggestedAddresses, setSuggestedAddresses] = useState([]);
+  const [recipientSuggestedAddresses, setRecipientSuggestedAddresses] =
+    useState([]);
+  const [senderAddressInput, setSenderAddressInput] = useState("");
+  const [recipientAddressInput, setRecipientAddressInput] = useState("");
   const [filteredSuggestions, setFilteredSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const RecipientAddressRef = useRef(null);
-  const senderAddressRef = useRef(null);
+  const [addressType, setAddressType] = useState(null);
 
   useEffect(() => {
-    // Subscribe to Firestore updates for address suggestions
-    const fetchAddressesByCity = async () => {
-      if (recipientCity) {
-        const q = query(
-          collection(db, "Address"),
-          where("City", "==", recipientCity)
-        );
+    const fetchAddressesByCity = async (city, type) => {
+      if (city) {
+        const q = query(collection(db, "Address"), where("City", "==", city));
 
         const unsubscribe = onSnapshot(q, (querySnapshot) => {
           const suggestions = [];
@@ -50,117 +46,103 @@ function MailForm({ formTitle, fieldsGroups, selectionGroups, onFormSubmit }) {
             const formattedAddress = `${data.HouseNo}, ${data.Address_line_1}, ${data.Address_line_2}, ${data.City}`;
             suggestions.push(formattedAddress);
           });
-          setSuggestedAddresses(suggestions);
+
+          // Check the type to set the correct suggestions
+          if (type === "recipient") {
+            setRecipientSuggestedAddresses(suggestions);
+            setFilteredSuggestions(suggestions);
+            setShowSuggestions(true);
+          } else {
+            setSenderSuggestedAddresses(suggestions);
+          }
+
           setFilteredSuggestions(suggestions);
           setShowSuggestions(true);
         });
 
-        // Clean up subscription when the component unmounts
         return () => unsubscribe();
       }
     };
 
-    fetchAddressesByCity();
-
-    const fetchAddressesBySenderCity = async () => {
-      if (senderCity) {
-        const q = query(
-          collection(db, "Address"),
-          where("City", "==", senderCity)
-        );
-
-        const unsubscribe = onSnapshot(q, (querySnapshot) => {
-          const suggestions = [];
-          querySnapshot.forEach((doc) => {
-            const data = doc.data();
-            const formattedAddress = `${data.HouseNo}, ${data.Address_line_1}, ${data.Address_line_2}, ${data.City}`;
-            suggestions.push(formattedAddress);
-          });
-          setSuggestedAddresses(suggestions);
-          setFilteredSuggestions(suggestions);
-          setShowSuggestions(true);
-        });
-
-        // Clean up subscription when the component unmounts
-        return () => unsubscribe();
-      }
-    };
-
-    fetchAddressesBySenderCity();
+    fetchAddressesByCity(recipientCity, "recipient");
+    fetchAddressesByCity(senderCity, "sender");
   }, [recipientCity, senderCity]);
 
   const handleChange = (id) => (event) => {
     const value = event.target.value;
     if (id === "recipient_city") {
+      setAddressType("recipient");
       setRecipientCity(value);
     } else if (id === "sender_city") {
+      setAddressType("sender");
       setSenderCity(value);
+    } else {
+      setFormState({
+        ...formState,
+        [id]: event.target.value,
+      });
     }
-
-    // Updating formState for cities and other fields.
-    setFormState((prevState) => ({
-      ...prevState,
-      [id]: value,
-    }));
   };
 
-  const handleAddressInput = (type) => (event) => {
+  const handleAddressInput = (event) => {
     const inputText = event.target.value;
-    const currentCity = type === "recipient" ? recipientCity : senderCity;
-    const setSuggestedAddressesFunc =
-      type === "recipient"
-        ? setSuggestedAddresses
-        : setSenderSuggestedAddresses;
-    const suggestedAddressesList =
-      type === "recipient" ? suggestedAddresses : senderSuggestedAddresses;
+    const type = addressType;
 
     if (type === "recipient") {
-      setAddressInput(inputText);
+      setRecipientAddressInput(inputText);
     } else {
       setSenderAddressInput(inputText);
     }
 
+    let currentSuggestedAddresses = [];
+    if (type === "recipient") {
+      currentSuggestedAddresses = recipientSuggestedAddresses;
+    } else {
+      currentSuggestedAddresses = senderSuggestedAddresses;
+    }
+
     if (inputText === "") {
-      if (currentCity) {
-        setFilteredSuggestions(suggestedAddressesList);
-      } else {
-        setFilteredSuggestions([]);
+      // If the input is empty, reset suggestions to the full list or fetch based on City
+      setFilteredSuggestions(currentSuggestedAddresses);
+      if (!currentSuggestedAddresses.length) {
         setShowSuggestions(false);
       }
     } else {
-      const filteredSuggestions = suggestedAddressesList.filter((suggestion) =>
-        suggestion.toLowerCase().includes(inputText.toLowerCase())
+      // Filter suggestions based on input text
+      const newFilteredSuggestions = currentSuggestedAddresses.filter(
+        (suggestion) =>
+          suggestion.toLowerCase().includes(inputText.toLowerCase())
       );
 
-      if (filteredSuggestions.length === 0) {
-        if (currentCity) {
-          setFilteredSuggestions(suggestedAddressesList);
-        } else {
-          setFilteredSuggestions([]);
-          setShowSuggestions(false);
-        }
+      if (newFilteredSuggestions.length === 0) {
+        // If no matching suggestions, reset to full list or hide
+        setShowSuggestions(false);
       } else {
-        setFilteredSuggestions(filteredSuggestions);
+        setFilteredSuggestions(newFilteredSuggestions);
         setShowSuggestions(true);
       }
     }
-    setFormState((prevState) => ({
-      ...prevState,
-      [type === "recipient" ? "recipient_address" : "sender_address"]:
-        inputText,
-    }));
   };
 
   const handleAddressSelect = (address) => {
-    setAddressInput(address);
-    setShowSuggestions(false);
+    if (addressType === "recipient") {
+      setRecipientAddressInput(address);
 
-    // Updating formState for selected address.
-    setFormState((prevState) => ({
-      ...prevState,
-      recipient_address: address,
-    }));
+      setFormState((prevState) => ({
+        ...prevState,
+        recipient_address: address,
+      }));
+    } else {
+      setSenderAddressInput(address);
+
+      setFormState((prevState) => ({
+        ...prevState,
+        sender_address: address,
+      }));
+    }
+    setShowSuggestions(false);
   };
+
   const handleSubmit = () => {
     if (typeof onFormSubmit === "function") {
       onFormSubmit(formState);
@@ -226,85 +208,84 @@ function MailForm({ formTitle, fieldsGroups, selectionGroups, onFormSubmit }) {
               {group.label}
             </Typography>
             {group.fields.map((field) => (
-              <CustomTextField
-                label={field.label}
-                id={field.id}
-                required
-                key={field.id}
-                value={
-                  field.id === "recipient_city"
-                    ? recipientCity
-                    : field.id === "sender_city"
-                    ? senderCity
-                    : field.id === "recipient_address"
-                    ? addressInput
-                    : field.id === "sender_address"
-                    ? senderAddressInput
-                    : formState[field.id] || ""
+              <div key={field.id}>
+                <CustomTextField
+                  label={field.label}
+                  id={field.id}
+                  required
+                  key={field.id}
+                  value={
+                    field.id === "recipient_city"
+                      ? recipientCity
+                      : field.id === "sender_city"
+                      ? senderCity
+                      : field.id === "recipient_address"
+                      ? recipientAddressInput
+                      : field.id === "sender_address"
+                      ? senderAddressInput
+                      : formState[field.id] || ""
+                  }
+                  onChange={
+                    field.id === "recipient_city" || field.id === "sender_city"
+                      ? handleChange(field.id)
+                      : field.id === "recipient_address" ||
+                        field.id === "sender_address"
+                      ? handleAddressInput
+                      : handleChange(field.id)
+                  }
+                  onFocus={() => {
+                    setShowSuggestions(true);
+                    if (field.id === "recipient_address")
+                      setAddressType("recipient");
+                    else if (field.id === "sender_address")
+                      setAddressType("sender");
+                  }}
+                  onBlur={() => setShowSuggestions(false)}
+                />
+                {
+                  // If suggestions should show for this field, display them
+                  showSuggestions &&
+                    ((field.id === "recipient_address" &&
+                      addressType === "recipient") ||
+                      (field.id === "sender_address" &&
+                        addressType === "sender")) &&
+                    filteredSuggestions.length > 0 && (
+                      <Paper
+                        style={{
+                          position: "relative",
+                          zIndex: 1,
+                          width: "100%",
+                          borderRadius: "4px",
+                          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                          maxHeight: "200px",
+                          overflowY: "auto",
+                        }}
+                      >
+                        <List>
+                          {filteredSuggestions.map((address, index) => (
+                            <ListItem
+                              key={index}
+                              onClick={() => handleAddressSelect(address)}
+                              style={{
+                                cursor: "pointer",
+                                padding: "10px 15px",
+                                "&:hover": {
+                                  backgroundColor: "#f7f7f7",
+                                },
+                              }}
+                            >
+                              {address}
+                            </ListItem>
+                          ))}
+                        </List>
+                      </Paper>
+                    )
                 }
-                onChange={
-                  field.id === "recipient_city" || field.id === "sender_city"
-                    ? handleChange(field.id)
-                    : field.id === "recipient_address" ||
-                      field.id === "sender_address"
-                    ? handleAddressInput(field.id)
-                    : handleChange(field.id)
-                }
-                {...(field.id === "recipient_address"
-                  ? {
-                      onFocus: () => setShowSuggestions(true),
-                      onBlur: () => setShowSuggestions(false),
-                      ref: RecipientAddressRef,
-                    }
-                  : field.id === "sender_address"
-                  ? {
-                      onFocus: () => setShowSuggestions(true),
-                      onBlur: () => setShowSuggestions(false),
-                      ref: senderAddressRef,
-                    }
-                  : {})}
-              />
+              </div>
             ))}
           </div>
         ))}
 
-        {showSuggestions && filteredSuggestions.length > 0 && (
-          <Paper
-            style={{
-              position: "relative",
-              zIndex: 1,
-              width: "100%", // match the width of your TextField
-              top: RecipientAddressRef.current
-                ? RecipientAddressRef.current.getBoundingClientRect().bottom
-                : 0,
-              left: RecipientAddressRef.current
-                ? RecipientAddressRef.current.getBoundingClientRect().left
-                : 0,
-              borderRadius: "4px",
-              boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)", // subtle shadow for better depth
-              maxHeight: "200px",
-              overflowY: "auto",
-            }}
-          >
-            <List>
-              {filteredSuggestions.map((address, index) => (
-                <ListItem
-                  key={index}
-                  onClick={() => handleAddressSelect(address)}
-                  style={{
-                    cursor: "pointer",
-                    padding: "10px 15px",
-                    "&:hover": {
-                      backgroundColor: "#f7f7f7",
-                    },
-                  }}
-                >
-                  {address}
-                </ListItem>
-              ))}
-            </List>
-          </Paper>
-        )}
         <Box
           sx={{
             my: "15px",
@@ -374,4 +355,5 @@ function MailForm({ formTitle, fieldsGroups, selectionGroups, onFormSubmit }) {
     </Box>
   );
 }
+
 export default MailForm;
