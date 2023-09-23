@@ -44,7 +44,7 @@ function MailForm({ formTitle, fieldsGroups, selectionGroups, onFormSubmit }) {
           querySnapshot.forEach((doc) => {
             const data = doc.data();
             const formattedAddress = `${data.HouseNo}, ${data.Address_line_1}, ${data.Address_line_2}, ${data.City}`;
-            suggestions.push(formattedAddress);
+            suggestions.push({ id: doc.id, address: formattedAddress });
           });
 
           // Check the type to set the correct suggestions
@@ -102,20 +102,18 @@ function MailForm({ formTitle, fieldsGroups, selectionGroups, onFormSubmit }) {
     }
 
     if (inputText === "") {
-      // If the input is empty, reset suggestions to the full list or fetch based on City
       setFilteredSuggestions(currentSuggestedAddresses);
       if (!currentSuggestedAddresses.length) {
         setShowSuggestions(false);
       }
     } else {
-      // Filter suggestions based on input text
+      // Filter suggestions based on input text, using suggestion.address
       const newFilteredSuggestions = currentSuggestedAddresses.filter(
         (suggestion) =>
-          suggestion.toLowerCase().includes(inputText.toLowerCase())
+          suggestion.address.toLowerCase().includes(inputText.toLowerCase())
       );
 
       if (newFilteredSuggestions.length === 0) {
-        // If no matching suggestions, reset to full list or hide
         setShowSuggestions(false);
       } else {
         setFilteredSuggestions(newFilteredSuggestions);
@@ -124,20 +122,20 @@ function MailForm({ formTitle, fieldsGroups, selectionGroups, onFormSubmit }) {
     }
   };
 
-  const handleAddressSelect = (address) => {
+  const handleAddressSelect = (selectedAddress) => {
     if (addressType === "recipient") {
-      setRecipientAddressInput(address);
+      setRecipientAddressInput(selectedAddress.address);
 
       setFormState((prevState) => ({
         ...prevState,
-        recipient_address: address,
+        recipient_address_id: selectedAddress.id, // store the ID
       }));
     } else {
-      setSenderAddressInput(address);
+      setSenderAddressInput(selectedAddress.address);
 
       setFormState((prevState) => ({
         ...prevState,
-        sender_address: address,
+        sender_address_id: selectedAddress.id, // store the ID
       }));
     }
     setShowSuggestions(false);
@@ -262,10 +260,10 @@ function MailForm({ formTitle, fieldsGroups, selectionGroups, onFormSubmit }) {
                         }}
                       >
                         <List>
-                          {filteredSuggestions.map((address, index) => (
+                          {filteredSuggestions.map((suggestionObj, index) => (
                             <ListItem
                               key={index}
-                              onClick={() => handleAddressSelect(address)}
+                              onClick={() => handleAddressSelect(suggestionObj)}
                               style={{
                                 cursor: "pointer",
                                 padding: "10px 15px",
@@ -274,7 +272,8 @@ function MailForm({ formTitle, fieldsGroups, selectionGroups, onFormSubmit }) {
                                 },
                               }}
                             >
-                              {address}
+                              {suggestionObj.address}
+                              property
                             </ListItem>
                           ))}
                         </List>
