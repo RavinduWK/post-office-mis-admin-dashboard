@@ -5,7 +5,15 @@ import CostCalculator from "../../components/CostCalculator";
 import { fieldsData, postOfficeData } from "../../data/formFields";
 import { useNavigate } from "react-router-dom";
 
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import {
+  doc,
+  getDoc,
+  setDoc,
+  query,
+  collection,
+  where,
+  getDocs,
+} from "firebase/firestore";
 
 import { db } from "../../config/firebase";
 import { generateRandomString } from "../../utils/SecurityCode";
@@ -17,17 +25,12 @@ const NormalPost = () => {
 
   const recipientFields = [
     fieldsData.recipientName,
-    fieldsData.recipientDistrict,
+    // fieldsData.recipientDistrict,
     fieldsData.recipientCity,
     fieldsData.recipientAddress,
   ];
 
   const transactionFields = [fieldsData.cost];
-
-  const postOfficeFields = [
-    postOfficeData.acceptedPostOffice,
-    postOfficeData.destinationPostOffice,
-  ];
 
   const handleSubmit = async (formState) => {
     try {
@@ -49,12 +52,44 @@ const NormalPost = () => {
 
       // Step 3: Create a new mail item with the new ID
       const mailId = `10${newId}`;
-      await setDoc(doc(db, "MailServiceItems", mailId), {
+
+      // Assuming you have the recipient_address_id in formState
+      const recipientAddressId = formState.recipient_address_id;
+
+      // Get the recipient address document
+      const addressDocRef = doc(db, "Address", recipientAddressId);
+      const addressDocSnapshot = await getDoc(addressDocRef);
+
+      let assignedPostman = "";
+
+      if (addressDocSnapshot.exists()) {
+        // Get the RegionID from the recipient address document
+        const recipientRegionId = addressDocSnapshot.data().RegionID;
+
+        // Query the postmen collection for a postman with the matching RegionID
+        const postmanQuery = query(
+          collection(db, "employees"),
+          where("role", "==", "postman"),
+          where("region", "==", recipientRegionId)
+        );
+        const postmanQuerySnapshot = await getDocs(postmanQuery);
+
+        if (postmanQuerySnapshot.docs.length > 0) {
+          // Assuming there's only one matching postman, you can handle multiple matches differently
+          const postmanDoc = postmanQuerySnapshot.docs[0];
+          assignedPostman = postmanDoc.id;
+        }
+      }
+
+      // Now you have the assigned postman ID based on the recipient's RegionID
+      console.log("Assigned Postman ID:", assignedPostman);
+
+      // Update the "assigned_postman" field in the mail item document
+      await setDoc(doc(db, "MailServiceItem", mailId), {
         ...formState,
         type: "normal post",
-        security_number: generateRandomString(10),
-        assigned_postman: "",
-        delivery_attempts: 0,
+        assigned_postman: assignedPostman,
+        delivery_attempts: [],
         status: "Pending",
         timestamp: new Date(),
       });
@@ -88,7 +123,7 @@ const NormalPost = () => {
             { label: "Recipient's Details", fields: recipientFields },
             { label: "Transaction Details", fields: transactionFields },
           ]}
-          selectionGroups={[{ fields: postOfficeFields }]}
+          selectionGroups={[]}
           onFormSubmit={handleSubmit}
         />
         <CostCalculator />
