@@ -1,67 +1,62 @@
-import React from "react";
+import React, { useState } from "react";
 import { Box } from "@mui/material";
 import MailForm from "../../components/MailForm";
 import CostCalculator from "../../components/CostCalculator";
 import { fieldsData, postOfficeData } from "../../data/formFields";
 import { useNavigate } from "react-router-dom";
-
-import { doc, getDoc, setDoc } from "firebase/firestore";
-
-import { db } from "../../config/firebase";
 import { generateRandomString } from "../../utils/SecurityCode";
+import {
+  getLatestMailId,
+  createMailItem,
+  getAssignedPostman,
+} from "../../data/databaseFunctions";
 
 const RegisteredPost = () => {
   const navigate = useNavigate();
+  const [securityNumber, setSecurityNumber] = useState("");
 
   const senderFields = [
     fieldsData.senderName,
-    fieldsData.senderDistrict,
+    // fieldsData.senderDistrict,
     fieldsData.senderCity,
     fieldsData.senderAddress,
   ];
 
   const recipientFields = [
     fieldsData.recipientName,
-    fieldsData.recipientDistrict,
+    // fieldsData.recipientDistrict,
     fieldsData.recipientCity,
     fieldsData.recipientAddress,
   ];
 
   const transactionFields = [fieldsData.cost];
 
-  const postOfficeFields = [
-    postOfficeData.acceptedPostOffice,
-    postOfficeData.destinationPostOffice,
-  ];
-
   const handleSubmit = async (formState) => {
     try {
-      // Step 1: Get the latest ID from the "metadata" document
-      const docRef = doc(db, "metadata", "mailService");
-      const docSnap = await getDoc(docRef);
+      const newId = await getLatestMailId();
 
-      let newId;
-      if (docSnap.exists()) {
-        // Increment the latest ID to generate a new ID
-        newId = docSnap.data().latestId + 1;
-      } else {
-        // If the "metadata" document does not exist, initialize the ID to 100000
-        newId = 100000;
-      }
+      const assignedPostman = await getAssignedPostman(
+        formState.recipient_address_id
+      );
+      console.log("Assigned Postman ID: " + assignedPostman);
 
-      // Step 2: Update the "metadata" document with the new ID
-      await setDoc(docRef, { latestId: newId });
-
-      // Step 3: Create a new mail item with the new ID
+      const type = "registered post";
       const mailId = `11${newId}`;
-      await setDoc(doc(db, "MailServiceItems", mailId), {
-        ...formState,
-        type: "registered post",
-        security_number: generateRandomString(10),
-      });
+      const securityNumber = generateRandomString(10);
 
-      console.log("Document successfully written with ID: ", mailId);
-      navigate("success");
+      await createMailItem(
+        mailId,
+        formState,
+        type,
+        assignedPostman,
+        securityNumber
+      );
+
+      setSecurityNumber(securityNumber);
+      console.log("Document successfully written with ID: " + mailId);
+      navigate("success", {
+        state: { mailId, securityNumber, cost: formState.cost },
+      });
     } catch (e) {
       console.error("Error adding document: ", e);
     }
@@ -82,7 +77,7 @@ const RegisteredPost = () => {
             { label: "Recipient's Details", fields: recipientFields },
             { label: "Transaction Details", fields: transactionFields },
           ]}
-          selectionGroups={[{ fields: postOfficeFields }]}
+          selectionGroups={[]}
           onFormSubmit={handleSubmit}
         />
         <CostCalculator />
