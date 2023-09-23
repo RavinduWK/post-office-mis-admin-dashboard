@@ -47,26 +47,46 @@ function MailForm({ formTitle, fieldsGroups, selectionGroups, onFormSubmit }) {
             suggestions.push({ id: doc.id, address: formattedAddress });
           });
 
-          // Check the type to set the correct suggestions
           if (type === "recipient") {
             setRecipientSuggestedAddresses(suggestions);
             setFilteredSuggestions(suggestions);
             setShowSuggestions(true);
-          } else {
-            setSenderSuggestedAddresses(suggestions);
           }
 
-          setFilteredSuggestions(suggestions);
-          setShowSuggestions(true);
+          return () => unsubscribe();
         });
-
-        return () => unsubscribe();
       }
     };
 
     fetchAddressesByCity(recipientCity, "recipient");
+  }, [recipientCity]);
+
+  useEffect(() => {
+    const fetchAddressesByCity = async (city, type) => {
+      if (city) {
+        const q = query(collection(db, "Address"), where("City", "==", city));
+
+        const unsubscribe = onSnapshot(q, (querySnapshot) => {
+          const suggestions = [];
+          querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            const formattedAddress = `${data.HouseNo}, ${data.Address_line_1}, ${data.Address_line_2}, ${data.City}`;
+            suggestions.push({ id: doc.id, address: formattedAddress });
+          });
+
+          if (type === "sender") {
+            setSenderSuggestedAddresses(suggestions);
+            setFilteredSuggestions(suggestions);
+            setShowSuggestions(true);
+          }
+
+          return () => unsubscribe();
+        });
+      }
+    };
+
     fetchAddressesByCity(senderCity, "sender");
-  }, [recipientCity, senderCity]);
+  }, [senderCity]);
 
   const handleChange = (id) => (event) => {
     const value = event.target.value;
@@ -273,7 +293,6 @@ function MailForm({ formTitle, fieldsGroups, selectionGroups, onFormSubmit }) {
                               }}
                             >
                               {suggestionObj.address}
-                              property
                             </ListItem>
                           ))}
                         </List>

@@ -53,6 +53,10 @@ const NormalPost = () => {
         ...formState,
         type: "normal post",
         security_number: generateRandomString(10),
+        assigned_postman: "",
+        delivery_attempts: 0,
+        status: "Pending",
+        timestamp: new Date(),
       });
 
       console.log("Document successfully written with ID: ", mailId);
