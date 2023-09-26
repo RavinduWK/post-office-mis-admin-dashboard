@@ -6,8 +6,9 @@ import {
   collection,
   where,
   getDocs,
+  getFirestore,
 } from "firebase/firestore";
-import { db } from "../config/firebase";
+import { db, auth } from "../config/firebase";
 
 export async function getLatestMailId() {
   const docRef = doc(db, "metadata", "mailService");
@@ -25,10 +26,12 @@ export async function createMailItem(
   formState,
   type,
   assignedPostman,
+  receptionistID,
   securityNumber
 ) {
   const mailItemData = {
     ...formState,
+    accepted_receptionist: receptionistID,
     type: type,
     assigned_postman: assignedPostman,
     delivery_attempts: [],
@@ -62,4 +65,18 @@ export async function getAssignedPostman(recipientAddressId) {
   }
 
   return "";
+}
+
+export async function fetchUserID() {
+  try {
+    const user = auth.currentUser;
+
+    if (user) {
+      return user.uid;
+    } else {
+      console.error("No user logged in!");
+    }
+  } catch (error) {
+    console.error("Error fetching user details:", error);
+  }
 }

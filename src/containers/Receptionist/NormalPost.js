@@ -8,6 +8,7 @@ import {
   getLatestMailId,
   createMailItem,
   getAssignedPostman,
+  fetchUserID,
 } from "../../data/databaseFunctions"; // Import database service functions
 
 const NormalPost = () => {
@@ -28,20 +29,29 @@ const NormalPost = () => {
       // Step 1: Get the latest ID from the "metadata" document
       const newId = await getLatestMailId();
 
-      // Step 2: Get the assigned postman
+      // Step 2: Get the receptionist ID asynchronously
+      const receptionistID = await fetchUserID();
+
+      // Step 3: Get the assigned postman
       const assignedPostman = await getAssignedPostman(
         formState.recipient_address_id
       );
       console.log("Assigned Postman ID: " + assignedPostman);
 
-      // Step 3: Create a new mail item with the new ID
+      // Step 4: Create a new mail item with the new ID
       const type = "normal post";
       const mailId = `10${newId}`;
-      await createMailItem(mailId, formState, type, assignedPostman);
+      await createMailItem(
+        mailId,
+        formState,
+        type,
+        assignedPostman,
+        receptionistID
+      );
 
       console.log("Document successfully written with ID: " + mailId);
       navigate("success", {
-        state: { mailId, securityNumber, cost },
+        state: { mailId, securityNumber, cost: formState.cost },
       });
     } catch (e) {
       console.error("Error adding document: ", e);
