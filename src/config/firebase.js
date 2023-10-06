@@ -1,7 +1,7 @@
-// Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
+import { getDatabase } from "firebase/database";
 import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
@@ -12,14 +12,13 @@ const firebaseConfig = {
   messagingSenderId: process.env.REACT_APP_MESSAGE_ID,
   appId: process.env.REACT_APP_APP_ID,
   measurementId: process.env.REACT_APP_MEASUREMENT_ID,
+  databaseUrl: process.env.REACT_APP_REALTIME_DATABASE_URL,
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
-
-// Initialize Firebase Authentication and get a reference to the service
 const auth = getAuth(app);
 const db = getFirestore(app);
 const imageDB = getStorage(app);
+const realtimeDB = getDatabase(app);
 
-export { app, auth, db, imageDB };
+export { app, auth, db, imageDB, realtimeDB };
