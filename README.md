@@ -54,7 +54,7 @@ Here are some screenshots of the Admin Dashboard of the Post-office MIS system:
 
 **Dashboard Overview:**
 
-![Dashboard Overview](dashboard_overview.png)
+![Dashboard Overview](https://github.com/RavinduWK/post-office-mis-admin-dashboard/blob/main/public/image1.png)
 
 **Mail Sorting Interface:**
 
