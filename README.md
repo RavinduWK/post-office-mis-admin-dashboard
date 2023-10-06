@@ -1,4 +1,5 @@
 # Post-office Management Information System (MIS)
+![Live Map](https://github.com/RavinduWK/post-office-mis-admin-dashboard/blob/main/public/postoffice-mockup.png)
 
 ## Project Overview
 
@@ -52,18 +53,18 @@ To set up the Post-office MIS system, please follow these steps:
 
 Here are some screenshots of the Admin Dashboard of the Post-office MIS system:
 
-**Dashboard Overview:**
+**Live Map:**
 
-![Dashboard Overview](https://github.com/RavinduWK/post-office-mis-admin-dashboard/blob/main/public/image1.png)
+![Live Map](https://github.com/RavinduWK/post-office-mis-admin-dashboard/blob/main/public/image1.png)
 
-**Mail Sorting Interface:**
+**Employee Registration:**
 
-![Mail Sorting](mail_sorting.png)
+![Employee Registration](https://github.com/RavinduWK/post-office-mis-admin-dashboard/blob/main/public/image4.png)
 
-**Delivery Route Optimization:**
+**Mail Services:**
 
-![Route Optimization](route_optimization.png)
+![Mail Services](https://github.com/RavinduWK/post-office-mis-admin-dashboard/blob/main/public/image3.png)
 
-**Financial Management:**
+**Postoffice Statistics:**
 
-![Financial Management](financial_management.png)
+![Postoffice Statistics](https://github.com/RavinduWK/post-office-mis-admin-dashboard/blob/main/public/image2.png)
