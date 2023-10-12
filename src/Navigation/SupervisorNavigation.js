@@ -9,6 +9,7 @@ import SideBar from "../components/LayoutComponents/Sidebar";
 import RegisterEmployee from "../containers/Supervisor/RegisterEmployee";
 import MailAssignment from "../containers/Supervisor/MailAssignment";
 import MailTransfer from "../containers/Supervisor/MailTransfer";
+import DashboardSupervisor from "../containers/Common/DashboardSupervisor";
 
 function SupervisorInterface() {
   const [theme, colorMode] = useMode();
@@ -35,7 +36,7 @@ function SupervisorInterface() {
           >
             <Routes>
               {/* <Route path="" element={<DashBoard role="Supervisor" />} /> */}
-              <Route path="" element={<DashBoard role="Supervisor" />} />
+              <Route path="" element={<DashboardSupervisor />} />
               <Route path="register-employee" element={<RegisterEmployee />} />
               <Route path="mail-assignment" element={<MailAssignment />} />
               <Route path="mail-transfer" element={<MailTransfer />} />
