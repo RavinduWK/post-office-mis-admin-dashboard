@@ -31,11 +31,13 @@ import {
 import ProfilePopup from "../../containers/Common/ProfilePage";
 import EditProfile from "../Options/EditProfile";
 import NotificationsDialog from "../NotificationsDialog";
+import HelpDialog from "../HelpDialog";
 
 const TopBar = ({ isCollapsed, setIsCollapsed, role }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [userDetails, setUserDetails] = useState(null);
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [selectedSetting, setSelectedSetting] = useState("");
@@ -199,7 +201,7 @@ const TopBar = ({ isCollapsed, setIsCollapsed, role }) => {
         >
           <MenuItem onClick={handleProfileOpen}>Profile</MenuItem>{" "}
           <MenuItem onClick={() => setIsSettingsOpen(true)}>Settings</MenuItem>
-          <MenuItem onClick={handleClose}>Help</MenuItem>
+          <MenuItem onClick={() => setIsHelpOpen(true)}>Help</MenuItem>
           <Divider />
           <MenuItem onClick={handleClose}>Log Out</MenuItem>
         </Menu>
@@ -249,6 +251,7 @@ const TopBar = ({ isCollapsed, setIsCollapsed, role }) => {
         open={isNotificationsOpen}
         onClose={handleNotificationsToggle}
       />
+      <HelpDialog open={isHelpOpen} onClose={() => setIsHelpOpen(false)} />
     </Box>
   );
 };
