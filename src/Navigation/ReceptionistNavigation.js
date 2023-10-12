@@ -16,6 +16,7 @@ import BillDetails from "../containers/Receptionist/BillDetails";
 import ConfirmationPage from "../containers/Common/ConfirmationPage";
 import SideBar from "../components/LayoutComponents/Sidebar";
 import SuccessMessage from "../containers/Common/Success";
+import DashboardRecipient from "../containers/Common/DashboardRecipient";
 
 function ReceptionistInterface() {
   const [theme, colorMode] = useMode();
@@ -41,7 +42,7 @@ function ReceptionistInterface() {
             style={{ overflowY: "auto", height: "100vh" }}
           >
             <Routes>
-              <Route path="" element={<DashBoard role="Receptionist" />} />
+              <Route path="" element={<DashboardRecipient />} />
               <Route path="normal-post" element={<NormalPost />} />
               <Route path="registered-post" element={<RegisteredPost />} />
               <Route path="money-order" element={<MoneyOrder />} />

@@ -9,6 +9,9 @@ import {
   getLatestMailId,
   createMailItem,
   getAssignedPostman,
+  fetchUserID,
+  fetchPostOfficeRegions,
+  updateLatestMailId,
 } from "../../data/databaseFunctions";
 
 const RegisteredPost = () => {
@@ -33,13 +36,22 @@ const RegisteredPost = () => {
 
   const handleSubmit = async (formState) => {
     try {
+      // Get the latest ID from the "metadata" document
       const newId = await getLatestMailId();
 
-      const assignedPostman = await getAssignedPostman(
-        formState.recipient_address_id
-      );
-      console.log("Assigned Postman ID: " + assignedPostman);
+      // Get the receptionist ID asynchronously
+      const receptionistID = await fetchUserID();
 
+      // Get the regions belong to the post office
+      const postOfficeRegions = await fetchPostOfficeRegions();
+
+      // Get the assigned postman
+      const assignedPostman = await getAssignedPostman(
+        formState.recipient_address_id,
+        postOfficeRegions
+      );
+
+      // Create a new mail item with the new ID
       const type = "registered post";
       const mailId = `11${newId}`;
       const securityNumber = generateRandomString(10);
@@ -49,9 +61,11 @@ const RegisteredPost = () => {
         formState,
         type,
         assignedPostman,
+        receptionistID,
+        postOfficeRegions,
         securityNumber
       );
-
+      await updateLatestMailId(newId);
       setSecurityNumber(securityNumber);
       console.log("Document successfully written with ID: " + mailId);
       navigate("success", {

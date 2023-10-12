@@ -3,6 +3,7 @@ import FlexBetween from "./FlexBetween";
 import { ColorModeContext, tokens } from "../../styles/theme";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import { auth } from "../../config/firebase";
+import { useNavigate } from "react-router-dom";
 import { getFirestore, doc, getDoc } from "firebase/firestore";
 import {
   Button,
@@ -31,16 +32,19 @@ import {
 import ProfilePopup from "../../containers/Common/ProfilePage";
 import EditProfile from "../Options/EditProfile";
 import NotificationsDialog from "../NotificationsDialog";
+import HelpDialog from "../HelpDialog";
 
 const TopBar = ({ isCollapsed, setIsCollapsed, role }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [userDetails, setUserDetails] = useState(null);
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [selectedSetting, setSelectedSetting] = useState("");
 
   const theme = useTheme();
+  const navigate = useNavigate();
   const colors = tokens(theme.palette.mode);
   const colorMode = useContext(ColorModeContext);
   const textColor =
@@ -58,6 +62,10 @@ const TopBar = ({ isCollapsed, setIsCollapsed, role }) => {
 
   const handleProfileClose = () => {
     setIsProfileOpen(false);
+  };
+
+  const handleLogout = () => {
+    navigate("/login");
   };
 
   useEffect(() => {
@@ -199,9 +207,9 @@ const TopBar = ({ isCollapsed, setIsCollapsed, role }) => {
         >
           <MenuItem onClick={handleProfileOpen}>Profile</MenuItem>{" "}
           <MenuItem onClick={() => setIsSettingsOpen(true)}>Settings</MenuItem>
-          <MenuItem onClick={handleClose}>Help</MenuItem>
+          <MenuItem onClick={() => setIsHelpOpen(true)}>Help</MenuItem>
           <Divider />
-          <MenuItem onClick={handleClose}>Log Out</MenuItem>
+          <MenuItem onClick={handleLogout}>Log Out</MenuItem>
         </Menu>
       </FlexBetween>
       {isProfileOpen && userDetails && (
@@ -249,6 +257,7 @@ const TopBar = ({ isCollapsed, setIsCollapsed, role }) => {
         open={isNotificationsOpen}
         onClose={handleNotificationsToggle}
       />
+      <HelpDialog open={isHelpOpen} onClose={() => setIsHelpOpen(false)} />
     </Box>
   );
 };

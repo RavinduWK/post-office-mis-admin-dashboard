@@ -196,7 +196,7 @@ export const themeSettings = (mode) => {
               topbar: "#4D3E3B",
               sidebar: "#4D3E3B",
               dialogBox: "#633D35",
-              applicationForm: "#452320",
+              applicationForm: "#2E2523",
               inputField: "#291916",
               feedbacks: "#544441",
               feedbacksRead: "#452320",

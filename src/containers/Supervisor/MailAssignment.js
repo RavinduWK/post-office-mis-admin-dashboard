@@ -68,7 +68,9 @@ const MailAssignment = () => {
             {rows.map((row, index) => (
               <TableRow
                 key={index}
-                sx={{ backgroundColor: theme.palette.background.feedbacks }}
+                sx={{
+                  backgroundColor: theme.palette.background.applicationForm,
+                }}
               >
                 <TableCell>{row.pid}</TableCell>
                 <TableCell>{row.addressNo}</TableCell>

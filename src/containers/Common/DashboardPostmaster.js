@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { Box, Typography, Paper, Button, useTheme, Grid } from "@mui/material";
-import MailOutlineIcon from "@mui/icons-material/MailOutline";
 import { auth } from "../../config/firebase";
 import { getFirestore, doc, getDoc } from "firebase/firestore";
-import TransferWithinAStationIcon from "@mui/icons-material/TransferWithinAStation";
+import FeedbackIcon from "@mui/icons-material/Feedback";
+import BarChartIcon from "@mui/icons-material/BarChart";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import MapIcon from "@mui/icons-material/Map";
 import DashboardButton from "../../components/DashboardButton";
 
-const DashboardSupervisor = () => {
+const DashboardPostmaster = () => {
   const theme = useTheme();
   const [currentDateTime, setCurrentDateTime] = useState(new Date());
   const [userDetails, setUserDetails] = useState(null);
@@ -86,19 +87,10 @@ const DashboardSupervisor = () => {
     const year = dateObj.getFullYear();
 
     // For time
-    let hours = dateObj.getHours();
+    const hours = dateObj.getHours().toString().padStart(2, "0");
     const minutes = dateObj.getMinutes().toString().padStart(2, "0");
     const seconds = dateObj.getSeconds().toString().padStart(2, "0");
-    const ampm = hours >= 12 ? "PM" : "AM";
-
-    // Convert hours from 24-hour to 12-hour format
-    hours = hours % 12;
-    // Convert 0-hour (midnight) to 12-hour format
-    hours = hours ? hours : 12;
-
-    const time = `${hours
-      .toString()
-      .padStart(2, "0")}:${minutes}:${seconds} ${ampm}`;
+    const time = `${hours}:${minutes}:${seconds}`;
 
     return {
       date: `${dayOfWeek} ${dateOfMonth}${suffix} ${monthName}, ${year}`,
@@ -113,45 +105,21 @@ const DashboardSupervisor = () => {
       <Box>
         <Typography
           variant="h2"
-          style={{
-            flexGrow: 1,
-            textAlign: "center",
-            fontWeight: "bold",
-            marginBottom: "20px",
-          }}
+          style={{ flexGrow: 1, textAlign: "center", fontWeight: "bold" }}
         >
           Supervisor Dashboard
         </Typography>
       </Box>
-      <Box
-        textAlign="right"
-        sx={{
-          display: "flex",
-          flexDirection: "row",
-          justifyContent: "space-between",
-          padding: "0.5rem",
-          borderRadius: "4px",
-        }}
-      >
-        <Typography
-          variant="body1"
-          sx={{ fontWeight: "bold", color: theme.palette.text.typography }}
-        >
-          {date}
-        </Typography>
-        <Typography
-          variant="h3"
-          sx={{ fontWeight: "bold", color: theme.palette.text.typography }}
-        >
-          {time}
-        </Typography>
+      <Box textAlign="right">
+        <Typography variant="body1">{date}</Typography>
+        <Typography variant="body1">{time}</Typography>
       </Box>
 
       <Paper
         elevation={3}
         sx={{
           padding: 3,
-          marginTop: 1,
+          marginTop: 3,
           marginBottom: 4,
           backgroundColor: theme.palette.background.applicationForm,
         }}
@@ -166,27 +134,13 @@ const DashboardSupervisor = () => {
       </Paper>
 
       <Grid container spacing={4}>
-        {/* Mail Assignments */}
+        {/* Live Delivery Map */}
         <Grid item xs={12} md={4}>
           <DashboardButton
-            icon={<MailOutlineIcon sx={{ fontSize: 60, color: "#F2C848" }} />}
-            title=" Mail Assignments"
-            description="Fast delivery services."
-            href="/supervisor/mail-assignment"
-          />
-        </Grid>
-
-        {/* Mail Transfer */}
-        <Grid item xs={12} md={4}>
-          <DashboardButton
-            icon={
-              <TransferWithinAStationIcon
-                sx={{ fontSize: 60, color: "#F2C848" }}
-              />
-            }
-            title="Mail Transfer"
-            description="View and manage the transfer list of mails."
-            href="/supervisor/mail-transfer"
+            icon={<MapIcon sx={{ fontSize: 60, color: "#F2C848" }} />}
+            title="Live Delivery Map"
+            description="Track live mail deliveries."
+            href="/live-delivery-map"
           />
         </Grid>
 
@@ -196,7 +150,27 @@ const DashboardSupervisor = () => {
             icon={<PersonAddIcon sx={{ fontSize: 60, color: "#F2C848" }} />}
             title="Register Employee"
             description="Register new employees and assign roles."
-            href="/supervisor/register-employee"
+            href="/postmaster/register-employee"
+          />
+        </Grid>
+
+        {/* View Feedback */}
+        <Grid item xs={12} md={4}>
+          <DashboardButton
+            icon={<FeedbackIcon sx={{ fontSize: 60, color: "#F2C848" }} />}
+            title="View Feedback"
+            description="Check feedback from customers."
+            href="/postmaster/view-feedback"
+          />
+        </Grid>
+
+        {/* View Statistics */}
+        <Grid item xs={12} md={4}>
+          <DashboardButton
+            icon={<BarChartIcon sx={{ fontSize: 60, color: "#F2C848" }} />}
+            title="View Statistics"
+            description="Analyze mail delivery statistics."
+            href="/postmaster/view-statistics"
           />
         </Grid>
       </Grid>
@@ -204,4 +178,4 @@ const DashboardSupervisor = () => {
   );
 };
 
-export default DashboardSupervisor;
+export default DashboardPostmaster;
