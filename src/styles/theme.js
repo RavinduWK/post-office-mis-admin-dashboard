@@ -83,6 +83,7 @@ export const tokens = (mode) => ({
           900: "#30280e",
         },
         white: "#fff",
+        black: "#000",
       }
     : {
         grey: {
@@ -186,8 +187,19 @@ export const themeSettings = (mode) => {
               main: colors.grey[500],
               light: colors.grey[100],
             },
+            text: {
+              typography: colors.white,
+              invertText: colors.black,
+            },
             background: {
-              default: colors.primary[800],
+              default: "#291916",
+              topbar: "#4D3E3B",
+              sidebar: "#4D3E3B",
+              dialogBox: "#633D35",
+              applicationForm: "#452320",
+              inputField: "#291916",
+              feedbacks: "#544441",
+              feedbacksRead: "#452320",
             },
           }
         : {
@@ -203,8 +215,19 @@ export const themeSettings = (mode) => {
               main: colors.grey[500],
               light: colors.grey[100],
             },
+            text: {
+              typography: "#852318",
+              invertText: colors.white,
+            },
             background: {
               default: colors.lightBrown[400],
+              topbar: colors.white,
+              sidebar: colors.white,
+              dialogBox: "#f5f5f5",
+              applicationForm: colors.white,
+              inputField: "#F0F0F0",
+              feedbacks: colors.white,
+              feedbacksRead: "#f2f2f2",
             },
           }),
     },

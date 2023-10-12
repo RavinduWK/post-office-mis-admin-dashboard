@@ -13,6 +13,12 @@ import {
   MenuItem,
   useTheme,
   Divider,
+  Dialog,
+  List,
+  ListItem,
+  ListItemText,
+  TextField,
+  Paper,
 } from "@mui/material";
 import {
   LightModeOutlined,
@@ -23,14 +29,24 @@ import {
   ArrowDropDownOutlined,
 } from "@mui/icons-material";
 import ProfilePopup from "../../containers/Common/ProfilePage";
+import EditProfile from "../Options/EditProfile";
+import NotificationsDialog from "../NotificationsDialog";
 
 const TopBar = ({ isCollapsed, setIsCollapsed, role }) => {
   const [anchorEl, setAnchorEl] = useState(null);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [userDetails, setUserDetails] = useState(null);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [selectedSetting, setSelectedSetting] = useState("");
+
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const colorMode = useContext(ColorModeContext);
+  const textColor =
+    theme.palette.mode === "dark"
+      ? theme.palette.neutral.light
+      : theme.palette.neutral.dark;
   const isOpen = Boolean(anchorEl);
   const handleClick = (event) => setAnchorEl(event.currentTarget);
   const handleClose = () => setAnchorEl(null);
@@ -68,13 +84,17 @@ const TopBar = ({ isCollapsed, setIsCollapsed, role }) => {
     fetchUserDetails();
   }, []);
 
+  const handleNotificationsToggle = () => {
+    setIsNotificationsOpen((prev) => !prev);
+  };
+
   return (
     <Box
       display="flex"
       justifyContent="space-between"
       px={2}
       paddingY={1}
-      backgroundColor={colors.white}
+      backgroundColor={theme.palette.background.topbar}
       style={{
         position: "fixed",
         top: 0,
@@ -130,12 +150,13 @@ const TopBar = ({ isCollapsed, setIsCollapsed, role }) => {
             <LightModeOutlined sx={{ fontSize: "25px" }} />
           )}
         </IconButton>
-        <IconButton>
+        <IconButton onClick={handleNotificationsToggle}>
           <NotificationsOutlined sx={{ fontSize: "25px" }} />
         </IconButton>
-        <IconButton>
+        <IconButton onClick={() => setIsSettingsOpen(true)}>
           <SettingsOutlined sx={{ fontSize: "25px" }} />
         </IconButton>
+
         {/* User Tile */}
         <Button
           onClick={handleClick}
@@ -158,11 +179,7 @@ const TopBar = ({ isCollapsed, setIsCollapsed, role }) => {
           </Box>
 
           <Box textAlign="left">
-            <Typography
-              color={colors.grey[100]}
-              fontWeight="bold"
-              fontSize="0.85rem"
-            >
+            <Typography color={textColor} fontWeight="bold" fontSize="0.85rem">
               {userDetails?.name || "Loading..."}{" "}
             </Typography>
             <Typography color={colors.grey[100]} fontSize="0.75rem">
@@ -181,8 +198,7 @@ const TopBar = ({ isCollapsed, setIsCollapsed, role }) => {
           sx={{ "& .MuiPaper-root": { width: "250px", marginLeft: "160px" } }}
         >
           <MenuItem onClick={handleProfileOpen}>Profile</MenuItem>{" "}
-          {/* Updated this line */}
-          <MenuItem onClick={handleClose}>Settings</MenuItem>
+          <MenuItem onClick={() => setIsSettingsOpen(true)}>Settings</MenuItem>
           <MenuItem onClick={handleClose}>Help</MenuItem>
           <Divider />
           <MenuItem onClick={handleClose}>Log Out</MenuItem>
@@ -191,6 +207,48 @@ const TopBar = ({ isCollapsed, setIsCollapsed, role }) => {
       {isProfileOpen && userDetails && (
         <ProfilePopup userDetails={userDetails} onClose={handleProfileClose} />
       )}
+      <Dialog
+        fullWidth
+        maxWidth="md"
+        open={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+      >
+        <Box display="flex" p={2} minHeight="400px">
+          {/* Left Column */}
+          <Box flex="1" pr={2} minWidth="200px">
+            <List>
+              <ListItem
+                button
+                onClick={() => setSelectedSetting("editProfile")}
+              >
+                <ListItemText primary="Edit Profile" />
+              </ListItem>
+              <ListItem button onClick={() => setSelectedSetting("editFont")}>
+                <ListItemText primary="Edit Font" />
+              </ListItem>
+            </List>
+          </Box>
+
+          {/* Vertical Divider */}
+          <Divider orientation="vertical" flexItem />
+
+          {/* Right Column */}
+          <Box flex="3" overflow="auto" maxHeight="500px">
+            {selectedSetting === "editProfile" && (
+              <EditProfile userDetails={userDetails} />
+            )}
+            {selectedSetting === "editFont" && (
+              <Box>
+                <EditProfile userDetails={userDetails} />
+              </Box>
+            )}
+          </Box>
+        </Box>
+      </Dialog>
+      <NotificationsDialog
+        open={isNotificationsOpen}
+        onClose={handleNotificationsToggle}
+      />
     </Box>
   );
 };

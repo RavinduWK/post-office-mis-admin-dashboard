@@ -1,13 +1,16 @@
 import React from "react";
-import { TextField, GlobalStyles } from "@mui/material";
+import { TextField, GlobalStyles, useTheme } from "@mui/material";
 
 const CustomTextField = ({ label, id, required = false, value, onChange }) => {
+  const theme = useTheme();
+
   return (
     <div>
       <GlobalStyles
         styles={{
           ".MuiInputLabel-root.Mui-focused": {
-            backgroundColor: "white",
+            backgroundColor: "#fff",
+            color: "fff",
           },
         }}
       />
@@ -20,16 +23,16 @@ const CustomTextField = ({ label, id, required = false, value, onChange }) => {
         style={{
           m: 1,
           minWidth: 550,
-          backgroundColor: "#F0F0F0",
+          backgroundColor: theme.palette.background.inputField,
           "& .MuiOutlinedInput-root": {
             "&.Mui-focused fieldset": {
-              borderColor: "#696969",
+              borderColor: theme.palette.background.inputField,
             },
           },
         }}
         inputProps={{ style: { fontSize: 16 } }}
         InputLabelProps={{
-          style: { fontSize: 17, color: "#696969" },
+          style: { fontSize: 17 },
         }}
       />
     </div>

@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import React from "react";
-import { Box } from "@mui/material";
+import { Box, useTheme } from "@mui/material";
+
 import MailForm from "../../components/MailForm";
 import { employeeRegisterData } from "../../data/formFields";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
