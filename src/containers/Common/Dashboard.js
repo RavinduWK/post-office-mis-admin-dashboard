@@ -1,14 +1,33 @@
-import React from "react";
-import { Container, Typography, Box, Paper, Avatar } from "@mui/material";
+import React, { useContext } from "react";
+import { ColorModeContext, tokens } from "../../styles/theme";
+import {
+  Container,
+  Typography,
+  Box,
+  Paper,
+  Avatar,
+  useTheme,
+} from "@mui/material";
 import MailOutlineIcon from "@mui/icons-material/MailOutline";
 
 const DashBoard = ({ role }) => {
+  const theme = useTheme();
+  const colors = tokens(theme.palette.mode);
+  const colorMode = useContext(ColorModeContext);
+  const textColor =
+    theme.palette.mode === "dark"
+      ? theme.palette.neutral.light
+      : theme.palette.neutral.dark;
+
   return (
     <Container maxWidth="xl">
       <Box display="flex">
         {/* Main Content */}
         <Box flexGrow={1} p={3}>
-          <Paper elevation={3} style={{ background: "#f5f5f5" }}>
+          <Paper
+            elevation={3}
+            style={{ background: theme.palette.background.dialogBox }}
+          >
             <Box p={3}>
               <Box display="flex" alignItems="center" marginBottom={2}>
                 <Avatar

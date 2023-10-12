@@ -34,6 +34,7 @@ function SupervisorInterface() {
             style={{ overflowY: "auto", height: "100vh" }}
           >
             <Routes>
+              {/* <Route path="" element={<DashBoard role="Supervisor" />} /> */}
               <Route path="" element={<DashBoard role="Supervisor" />} />
               <Route path="register-employee" element={<RegisterEmployee />} />
               <Route path="mail-assignment" element={<MailAssignment />} />

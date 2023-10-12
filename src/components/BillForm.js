@@ -1,12 +1,12 @@
 import React from "react";
 import Box from "@mui/material/Box";
-import { Typography, Button, GlobalStyles } from "@mui/material";
+import { Typography, Button, GlobalStyles, useTheme } from "@mui/material";
 import CustomTextField from "./CustomComponents/CustomTextField";
 import CustomFormControl from "./CustomComponents/CustomFormControl";
 
 function BillForm({ formTitle, fieldsGroups, selectionGroups, onSubmit }) {
   const [formState, setFormState] = React.useState({});
-
+  const theme = useTheme();
   const handleChange = (id) => (event) => {
     setFormState({
       ...formState,
@@ -56,7 +56,7 @@ function BillForm({ formTitle, fieldsGroups, selectionGroups, onSubmit }) {
         alignItems: "center",
         justifyContent: "center",
         width: "45%",
-        backgroundColor: "white",
+        backgroundColor: theme.palette.background.applicationForm,
         borderRadius: "10px",
         padding: "30px 2px 30px 2px",
         boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.1)",
@@ -65,7 +65,7 @@ function BillForm({ formTitle, fieldsGroups, selectionGroups, onSubmit }) {
       <Typography
         variant="subtitle2"
         sx={{
-          color: "#852318",
+          color: theme.palette.text.typography,
           fontWeight: "bold",
           fontSize: "30px",
           marginBottom: "10px",

@@ -74,7 +74,7 @@ const SideBar = ({ isCollapsed, setIsCollapsed, role }) => {
     <Box>
       <Sidebar
         collapsed={isCollapsed}
-        backgroundColor={colors.white}
+        backgroundColor={theme.palette.background.sidebar}
         style={{
           height: "100%",
           overflowY: "auto",

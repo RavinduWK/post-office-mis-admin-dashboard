@@ -1,12 +1,14 @@
-import { GlobalStyles as MuiGlobalStyles } from "@mui/material";
+import { GlobalStyles as MuiGlobalStyles, useTheme } from "@mui/material";
 
 // Global styles for the application
 const GlobalStyles = () => {
+  const theme = useTheme();
+
   return (
     <MuiGlobalStyles
       styles={{
         ".MuiInputLabel-root.Mui-focused": {
-          backgroundColor: "white",
+          backgroundColor: theme.palette.background.inputField,
         },
       }}
     />

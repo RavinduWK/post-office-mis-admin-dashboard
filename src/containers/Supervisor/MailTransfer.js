@@ -9,6 +9,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  useTheme,
   Button,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
@@ -18,6 +19,7 @@ import { toJpeg } from "html-to-image";
 
 const ExpandableRow = ({ to, numberOfItems, date }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const theme = useTheme();
   const barcodeRef = useRef(null);
 
   const items = Array.from({ length: numberOfItems }, (_, index) => ({
@@ -55,7 +57,7 @@ const ExpandableRow = ({ to, numberOfItems, date }) => {
         padding="16px"
         marginTop="20px"
         marginBottom="8px"
-        backgroundColor="#fff"
+        backgroundColor={theme.palette.background.feedbacks}
       >
         <Typography>To: {to}</Typography>
         <Typography>Number of Items: {numberOfItems}</Typography>
@@ -80,7 +82,7 @@ const ExpandableRow = ({ to, numberOfItems, date }) => {
               <TableHead>
                 <TableRow
                   sx={{
-                    backgroundColor: "#f4f4f4",
+                    backgroundColor: theme.palette.background.feedbacks,
                   }}
                 >
                   <TableCell sx={{ fontWeight: "bold", fontSize: "1.1em" }}>
@@ -102,7 +104,7 @@ const ExpandableRow = ({ to, numberOfItems, date }) => {
                   <TableRow
                     key={index}
                     sx={{
-                      backgroundColor: "#f4f4f4",
+                      backgroundColor: theme.palette.background.feedbacksRead,
                     }}
                   >
                     <TableCell>{item.PID}</TableCell>
