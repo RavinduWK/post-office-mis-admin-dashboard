@@ -5,10 +5,12 @@ import {
   Typography,
   Button,
   TextField,
+  useTheme,
   GlobalStyles,
 } from "@mui/material";
 
 const CostCalculator = () => {
+  const theme = useTheme();
   const [weight, setWeight] = useState("");
   const [cost, setCost] = useState(null);
 
@@ -51,7 +53,7 @@ const CostCalculator = () => {
         justifyContent: "center",
         width: "25%",
         height: "400px",
-        backgroundColor: "white",
+        backgroundColor: theme.palette.background.applicationForm,
         borderRadius: "10px",
         padding: "15 5 5 0",
         boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.1)",
@@ -62,7 +64,7 @@ const CostCalculator = () => {
         sx={{
           marginTop: "20px",
           marginBottom: "10px",
-          color: "#852318",
+          color: theme.palette.text.typography,
           fontWeight: "bold",
           fontSize: "30px",
         }}
@@ -92,7 +94,7 @@ const CostCalculator = () => {
             required
             id="outlined-required"
             label="Mail Weight (g)"
-            style={{ backgroundColor: "#F0F0F0" }}
+            style={{ backgroundColor: theme.palette.background.inputField }}
             value={weight}
             onChange={handleChange}
           />

@@ -1,11 +1,11 @@
 import React from "react";
-import Box from "@mui/material/Box";
-import { Typography, Button, GlobalStyles } from "@mui/material";
+import { Typography, Box, useTheme, Button, GlobalStyles } from "@mui/material";
 import CustomTextField from "./CustomComponents/CustomTextField";
 import CustomFormControl from "./CustomComponents/CustomFormControl";
 
 function MailForm({ formTitle, fieldsGroups, selectionGroups, onFormSubmit }) {
   const [formState, setFormState] = React.useState({});
+  const theme = useTheme();
 
   const handleSubmit = () => {
     if (typeof onFormSubmit === "function") {
@@ -30,7 +30,7 @@ function MailForm({ formTitle, fieldsGroups, selectionGroups, onFormSubmit }) {
         alignItems: "center",
         justifyContent: "center",
         width: "45%",
-        backgroundColor: "white",
+        backgroundColor: theme.palette.background.applicationForm,
         borderRadius: "10px",
         padding: "30px 2px 30px 2px",
         boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.1)",
@@ -39,7 +39,7 @@ function MailForm({ formTitle, fieldsGroups, selectionGroups, onFormSubmit }) {
       <Typography
         variant="subtitle2"
         sx={{
-          color: "#852318",
+          color: theme.palette.text.typography,
           fontWeight: "bold",
           fontSize: "30px",
           marginBottom: "10px",
@@ -61,7 +61,9 @@ function MailForm({ formTitle, fieldsGroups, selectionGroups, onFormSubmit }) {
       >
         <GlobalStyles
           styles={{
-            ".MuiInputLabel-root.Mui-focused": { backgroundColor: "white" },
+            ".MuiInputLabel-root.Mui-focused": {
+              backgroundColor: theme.palette.text.typography,
+            },
           }}
         />
         {fieldsGroups.map((group, index) => (
@@ -69,7 +71,7 @@ function MailForm({ formTitle, fieldsGroups, selectionGroups, onFormSubmit }) {
             <Typography
               variant="subtitle2"
               sx={{
-                color: "#852318",
+                color: theme.palette.text.typography,
                 fontSize: "18px",
                 fontWeight: "bold",
                 marginBottom: "5px",
