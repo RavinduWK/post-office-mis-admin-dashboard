@@ -28,23 +28,22 @@ const NormalPost = () => {
 
   const handleSubmit = async (formState) => {
     try {
-      // Step 1: Get the latest ID from the "metadata" document
+      // Get the latest ID from the "metadata" document
       const newId = await getLatestMailId();
 
-      // Step 2: Get the receptionist ID asynchronously
+      // Get the receptionist ID asynchronously
       const receptionistID = await fetchUserID();
 
-      //Get the regions belong to the post office
+      // Get the regions belong to the post office
       const postOfficeRegions = await fetchPostOfficeRegions();
 
-      // Step 3: Get the assigned postman
+      // Get the assigned postman
       const assignedPostman = await getAssignedPostman(
         formState.recipient_address_id,
         postOfficeRegions
       );
-      console.log("Assigned Postman ID: " + assignedPostman);
-      console.log("region", postOfficeRegions);
-      // Step 4: Create a new mail item with the new ID
+
+      // Create a new mail item with the new ID
       const type = "normal post";
       const mailId = `10${newId}`;
       await createMailItem(
