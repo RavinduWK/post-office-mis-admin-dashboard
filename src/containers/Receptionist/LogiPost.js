@@ -11,7 +11,7 @@ import {
   getAssignedPostman,
 } from "../../data/databaseFunctions";
 
-const RegisteredPost = () => {
+const LogiPost = () => {
   const navigate = useNavigate();
   const [securityNumber, setSecurityNumber] = useState("");
 
@@ -86,4 +86,4 @@ const RegisteredPost = () => {
   );
 };
 
-export default RegisteredPost;
+export default LogiPost;

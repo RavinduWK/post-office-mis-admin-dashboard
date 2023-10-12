@@ -3,6 +3,7 @@ import FlexBetween from "./FlexBetween";
 import { ColorModeContext, tokens } from "../../styles/theme";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import { auth } from "../../config/firebase";
+import { useNavigate } from "react-router-dom";
 import { getFirestore, doc, getDoc } from "firebase/firestore";
 import {
   Button,
@@ -43,6 +44,7 @@ const TopBar = ({ isCollapsed, setIsCollapsed, role }) => {
   const [selectedSetting, setSelectedSetting] = useState("");
 
   const theme = useTheme();
+  const navigate = useNavigate();
   const colors = tokens(theme.palette.mode);
   const colorMode = useContext(ColorModeContext);
   const textColor =
@@ -60,6 +62,10 @@ const TopBar = ({ isCollapsed, setIsCollapsed, role }) => {
 
   const handleProfileClose = () => {
     setIsProfileOpen(false);
+  };
+
+  const handleLogout = () => {
+    navigate("/login");
   };
 
   useEffect(() => {
@@ -203,7 +209,7 @@ const TopBar = ({ isCollapsed, setIsCollapsed, role }) => {
           <MenuItem onClick={() => setIsSettingsOpen(true)}>Settings</MenuItem>
           <MenuItem onClick={() => setIsHelpOpen(true)}>Help</MenuItem>
           <Divider />
-          <MenuItem onClick={handleClose}>Log Out</MenuItem>
+          <MenuItem onClick={handleLogout}>Log Out</MenuItem>
         </Menu>
       </FlexBetween>
       {isProfileOpen && userDetails && (

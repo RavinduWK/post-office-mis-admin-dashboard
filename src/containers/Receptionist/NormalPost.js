@@ -9,6 +9,8 @@ import {
   createMailItem,
   getAssignedPostman,
   fetchUserID,
+  fetchPostOfficeRegions,
+  updateLatestMailId,
 } from "../../data/databaseFunctions"; // Import database service functions
 
 const NormalPost = () => {
@@ -32,12 +34,16 @@ const NormalPost = () => {
       // Step 2: Get the receptionist ID asynchronously
       const receptionistID = await fetchUserID();
 
+      //Get the regions belong to the post office
+      const postOfficeRegions = await fetchPostOfficeRegions();
+
       // Step 3: Get the assigned postman
       const assignedPostman = await getAssignedPostman(
-        formState.recipient_address_id
+        formState.recipient_address_id,
+        postOfficeRegions
       );
       console.log("Assigned Postman ID: " + assignedPostman);
-
+      console.log("region", postOfficeRegions);
       // Step 4: Create a new mail item with the new ID
       const type = "normal post";
       const mailId = `10${newId}`;
@@ -46,9 +52,10 @@ const NormalPost = () => {
         formState,
         type,
         assignedPostman,
-        receptionistID
+        receptionistID,
+        postOfficeRegions
       );
-
+      await updateLatestMailId(newId);
       console.log("Document successfully written with ID: " + mailId);
       navigate("success", {
         state: { mailId, securityNumber, cost: formState.cost },
