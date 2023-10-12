@@ -150,7 +150,7 @@ function MailForm({ formTitle, fieldsGroups, selectionGroups, onFormSubmit }) {
 
       setFormState((prevState) => ({
         ...prevState,
-        recipient_address_id: selectedAddress.id, // store the ID
+        receiver_address_id: selectedAddress.id, // store the ID
       }));
     } else {
       setSenderAddressInput(selectedAddress.address);

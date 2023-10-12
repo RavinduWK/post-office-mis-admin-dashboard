@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Table,
@@ -11,34 +11,42 @@ import {
   useTheme,
   MenuItem,
 } from "@mui/material";
-import { mailAssignmentData } from "./../../data/mailAssignmentData";
+import {
+  fetchMailItems,
+  fetchPostOfficeRegions,
+  fetchPostmenForPostOffice,
+  fetchSupervisorPostOfficeId,
+} from "../../data/databaseFunctions";
 
 const MailAssignment = () => {
   const theme = useTheme();
-  const rows = mailAssignmentData(); // Read the dummy data
-  const headerCellStyle = {
-    fontWeight: "bold",
-    color: "white",
-    fontSize: "1.1rem",
-  };
+  const [selectedPostmen, setSelectedPostmen] = useState({});
+  const [mailItems, setMailItems] = useState([]);
+  const [postmanNameMapping, setPostmanNameMapping] = useState({});
+  const [postmen, setPostmen] = useState([]);
 
-  const [selectedPostmen, setSelectedPostmen] = useState(
-    rows.map((row, index) => {
-      // Set default postmen based on the index or any other criteria
-      const defaultPostmen = [
-        "Postman 1",
-        "Postman 2",
-        "Postman 3",
-        "Postman 4",
-        "Postman 5",
-      ];
-      return defaultPostmen[index % defaultPostmen.length];
-    })
-  );
-  const handlePostmanChange = (event, index) => {
-    const updatedPostmen = [...selectedPostmen];
-    updatedPostmen[index] = event.target.value;
-    setSelectedPostmen(updatedPostmen);
+  useEffect(() => {
+    async function fetchData() {
+      const postOfficeRegions = await fetchPostOfficeRegions();
+      const postOfficeId = await fetchSupervisorPostOfficeId();
+      const postmenList = await fetchPostmenForPostOffice(postOfficeId);
+      const postmanMapping = {};
+      postmenList.forEach((postman) => {
+        postmanMapping[postman.id] = postman.name;
+      });
+      setPostmanNameMapping(postmanMapping);
+      setPostmen(postmenList);
+      const items = await fetchMailItems(postOfficeRegions);
+      setMailItems(items);
+    }
+    fetchData();
+  }, []);
+
+  const handlePostmanChange = (event, itemId) => {
+    setSelectedPostmen((prev) => ({
+      ...prev,
+      [itemId]: event.target.value,
+    }));
   };
 
   return (
@@ -55,40 +63,65 @@ const MailAssignment = () => {
         >
           <TableHead>
             <TableRow sx={{ backgroundColor: "#852318" }}>
-              <TableCell sx={headerCellStyle}>PID</TableCell>
-              <TableCell sx={headerCellStyle}>Address No</TableCell>
-              <TableCell sx={headerCellStyle}>Street 1</TableCell>
-              <TableCell sx={headerCellStyle}>Street 2</TableCell>
-              <TableCell sx={headerCellStyle}>City</TableCell>
-              <TableCell sx={headerCellStyle}>Postman</TableCell>{" "}
-              {/* Updated header */}
+              <TableCell
+                sx={{ fontWeight: "bold", color: "white", fontSize: "1.1rem" }}
+              >
+                PID
+              </TableCell>
+              <TableCell
+                sx={{ fontWeight: "bold", color: "white", fontSize: "1.1rem" }}
+              >
+                Address No
+              </TableCell>
+              <TableCell
+                sx={{ fontWeight: "bold", color: "white", fontSize: "1.1rem" }}
+              >
+                Street 1
+              </TableCell>
+              <TableCell
+                sx={{ fontWeight: "bold", color: "white", fontSize: "1.1rem" }}
+              >
+                Street 2
+              </TableCell>
+              <TableCell
+                sx={{ fontWeight: "bold", color: "white", fontSize: "1.1rem" }}
+              >
+                City
+              </TableCell>
+              <TableCell
+                sx={{ fontWeight: "bold", color: "white", fontSize: "1.1rem" }}
+              >
+                Postman
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows.map((row, index) => (
+            {mailItems.map((item) => (
               <TableRow
-                key={index}
+                key={item.id}
                 sx={{
                   backgroundColor: theme.palette.background.applicationForm,
                 }}
               >
-                <TableCell>{row.pid}</TableCell>
-                <TableCell>{row.addressNo}</TableCell>
-                <TableCell>{row.street1}</TableCell>
-                <TableCell>{row.street2}</TableCell>
-                <TableCell>{row.city}</TableCell>
+                <TableCell>{item.id}</TableCell>
+                <TableCell>{item.receiver_address_id}</TableCell>
+                <TableCell>{item.street1}</TableCell>
+                <TableCell>{item.street2}</TableCell>
+                <TableCell>{item.city}</TableCell>
                 <TableCell>
                   <Select
-                    value={selectedPostmen[index]}
-                    onChange={(event) => handlePostmanChange(event, index)}
+                    value={
+                      postmanNameMapping[item.assigned_postman] || "Unknown"
+                    }
+                    onChange={(event) => handlePostmanChange(event, item.id)}
                     sx={{ width: "200px", fontSize: "0.75em" }}
                   >
                     <MenuItem value="">Select Postman</MenuItem>
-                    <MenuItem value="Postman 1">Mr. Kamal Dharmadasa</MenuItem>
-                    <MenuItem value="Postman 2">Mr. Sudharshana</MenuItem>
-                    <MenuItem value="Postman 3">Mr. Saman Lenin</MenuItem>
-                    <MenuItem value="Postman 4">Mr. Navendra Hemasiri</MenuItem>
-                    <MenuItem value="Postman 5">Mr. Sumathipala</MenuItem>
+                    {postmen.map((postman) => (
+                      <MenuItem key={postman.id} value={postman.name}>
+                        {postmanNameMapping[postman.id] || "Unknown"}
+                      </MenuItem>
+                    ))}
                   </Select>
                 </TableCell>
               </TableRow>
@@ -96,7 +129,6 @@ const MailAssignment = () => {
           </TableBody>
         </Table>
         <Box display="flex" justifyContent="center">
-          {/* Center-align the button */}
           <Button
             variant="contained"
             sx={{
