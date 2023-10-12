@@ -1,65 +1,62 @@
-import React from "react";
+import React, { useState } from "react";
 import { Box } from "@mui/material";
 import MailForm from "../../components/MailForm";
 import CostCalculator from "../../components/CostCalculator";
 import { fieldsData, postOfficeData } from "../../data/formFields";
 import { useNavigate } from "react-router-dom";
-import { doc, getDoc, setDoc } from "firebase/firestore";
-
-import { db } from "../../config/firebase";
 import { generateRandomString } from "../../utils/SecurityCode";
+import {
+  getLatestMailId,
+  createMailItem,
+  getAssignedPostman,
+} from "../../data/databaseFunctions";
 
-const FastTrackCourier = () => {
+const RegisteredPost = () => {
   const navigate = useNavigate();
+  const [securityNumber, setSecurityNumber] = useState("");
 
   const senderFields = [
     fieldsData.senderName,
-    fieldsData.senderDistrict,
+    // fieldsData.senderDistrict,
     fieldsData.senderCity,
     fieldsData.senderAddress,
   ];
 
   const recipientFields = [
     fieldsData.recipientName,
-    fieldsData.recipientDistrict,
+    // fieldsData.recipientDistrict,
     fieldsData.recipientCity,
     fieldsData.recipientAddress,
   ];
 
   const transactionFields = [fieldsData.cost];
 
-  const postOfficeFields = [
-    postOfficeData.acceptedPostOffice,
-    postOfficeData.destinationPostOffice,
-  ];
-
   const handleSubmit = async (formState) => {
     try {
-      // Step 1: Get the latest ID from the "metadata" document
-      const docRef = doc(db, "metadata", "mailService");
-      const docSnap = await getDoc(docRef);
+      const newId = await getLatestMailId();
 
-      let newId;
-      if (docSnap.exists()) {
-        // Increment the latest ID to generate a new ID
-        newId = docSnap.data().latestId + 1;
-      } else {
-        // If the "metadata" document does not exist, initialize the ID to 100000
-        newId = 100000;
-      }
+      const assignedPostman = await getAssignedPostman(
+        formState.recipient_address_id
+      );
+      console.log("Assigned Postman ID: " + assignedPostman);
 
-      // Step 2: Update the "metadata" document with the new ID
-      await setDoc(docRef, { latestId: newId });
+      const type = "fast track courier";
+      const mailId = `11${newId}`;
+      const securityNumber = generateRandomString(10);
 
-      // Step 3: Create a new mail item with the new ID
-      const mailId = `13${newId}`;
-      await setDoc(doc(db, "MailServiceItems", mailId), {
-        ...formState,
-        type: "fast-track-courier",
-        security_number: generateRandomString(10), // Generate a random 10-digit security number
+      await createMailItem(
+        mailId,
+        formState,
+        type,
+        assignedPostman,
+        securityNumber
+      );
+
+      setSecurityNumber(securityNumber);
+      console.log("Document successfully written with ID: " + mailId);
+      navigate("success", {
+        state: { mailId, securityNumber, cost: formState.cost },
       });
-
-      console.log("Document successfully written with ID: ", mailId);
     } catch (e) {
       console.error("Error adding document: ", e);
     }
@@ -80,8 +77,8 @@ const FastTrackCourier = () => {
             { label: "Recipient's Details", fields: recipientFields },
             { label: "Transaction Details", fields: transactionFields },
           ]}
-          selectionGroups={[{ fields: postOfficeFields }]}
-          onSubmit={handleSubmit}
+          selectionGroups={[]}
+          onFormSubmit={handleSubmit}
         />
         <CostCalculator />
       </Box>
@@ -89,4 +86,4 @@ const FastTrackCourier = () => {
   );
 };
 
-export default FastTrackCourier;
+export default RegisteredPost;

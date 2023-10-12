@@ -4,7 +4,7 @@ import ArrowBackIosOutlinedIcon from "@mui/icons-material/ArrowBackIosOutlined";
 import ArrowForwardIosOutlinedIcon from "@mui/icons-material/ArrowForwardIosOutlined";
 import CloseOutlinedIcon from "@mui/icons-material/CloseOutlined";
 
-const InfoBox = ({ location, onClose }) => {
+const InfoBox = ({ location, employeeData, onClose }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   return (
     <Box
@@ -54,7 +54,7 @@ const InfoBox = ({ location, onClose }) => {
       </IconButton>
       <Avatar
         alt="Profile Picture"
-        src={`../../assets/user1.png`}
+        src={employeeData.profile_picture || `../../assets/user1.png`}
         sx={{ width: 56, height: 56, my: 2 }}
       />
       <Typography
@@ -66,7 +66,7 @@ const InfoBox = ({ location, onClose }) => {
           marginBottom: 4,
         }}
       >
-        {location.name}
+        {employeeData.name}
       </Typography>
 
       <Box sx={{ width: "100%", padding: "0 1rem" }}>
@@ -104,12 +104,14 @@ const InfoBox = ({ location, onClose }) => {
         >
           Email:
         </Typography>
+
         <Divider />
+
         <Typography
           variant="body2"
           sx={{ fontSize: "1rem", color: "#7D7D7D", marginBottom: "1rem" }}
         >
-          {location.email}
+          {employeeData.email}
         </Typography>
 
         <Typography
@@ -123,7 +125,7 @@ const InfoBox = ({ location, onClose }) => {
           variant="body2"
           sx={{ fontSize: "1rem", color: "#7D7D7D", marginBottom: "1rem" }}
         >
-          {location.contact_number}
+          {employeeData.phone_number}
         </Typography>
       </Box>
     </Box>

@@ -76,6 +76,7 @@ const RegisterEmployee = () => {
       );
 
       if (user && user.uid) {
+        // User is authenticated, their ID is available
         alert("Account created!");
 
         // Generate the employee ID based on the role
@@ -93,8 +94,10 @@ const RegisterEmployee = () => {
           role: formData.employee_role,
         };
 
-        // Create a Firestore document for the user
+        // Create a Firestore document with the user's UID as the document ID
         const userDocRef = doc(db, "employees", user.uid);
+
+        // Use setDoc to create or overwrite the document
         await setDoc(userDocRef, userData);
 
         console.log("User registered and data saved to Firestore");
@@ -103,7 +106,7 @@ const RegisterEmployee = () => {
       }
     } catch (error) {
       // Handle errors
-      console.error("Error registering user:", error);
+      console.error("Error registering user:", error.message);
     }
   };
 

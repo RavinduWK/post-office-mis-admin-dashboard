@@ -1,120 +1,126 @@
 import React, { useState, useEffect } from "react";
 import GoogleMapReact from "google-map-react";
+import { collection, getDocs, doc, getDoc } from "firebase/firestore";
+import { ref, onValue, off } from "firebase/database";
+import { realtimeDB, db } from "../../config/firebase";
 import InfoBox from "../../components/CustomComponents/InfoBox";
 
-const GoogleMap = () => {
+const MonitorPostman = () => {
   const [map, setMap] = useState(null);
   const [maps, setMaps] = useState(null);
-  const [lastClickedMarker, setLastClickedMarker] = useState(null);
-  const [selectedLocation, setSelectedLocation] = useState(null);
   const [markers, setMarkers] = useState([]);
+  const [locations, setLocations] = useState([]);
+  const [employeeDetails, setEmployeeDetails] = useState(null);
+  const [lastClickedMarkerId, setLastClickedMarkerId] = useState(null);
 
-  const locations = [
-    {
-      lat: 5.949135252879287,
-      lng: 80.54365186921235,
-      name: "Mr. Saman Perera",
-      email: "nimal.bandara@example.com",
-      contact_number: "+94 71 123 4567",
-    },
-    {
-      lat: 5.950020954763154,
-      lng: 80.5468920023313,
-      name: "Mr. Anura Jayawardena",
-      email: "anura.jayawardena@example.com",
-      contact_number: "+94 71 234 5678",
-    },
-    {
-      lat: 5.949615453266514,
-      lng: 80.54456382431822,
-      name: "Mr. Priyantha Silva",
-      email: "priyantha.silva@example.com",
-      contact_number: "+94 71 345 6789",
-    },
-    {
-      lat: 5.948679314215682,
-      lng: 80.5418576940095,
-      name: "Mr. Sunil Fernando",
-      email: "sunil.fernando@example.com",
-      contact_number: "+94 71 456 7890",
-    },
-    {
-      lat: 5.950488841526736,
-      lng: 80.5409039336791,
-      name: "Mr. Lakshman Perera",
-      email: "lakshman.perera@example.com",
-      contact_number: "+94 71 567 8901",
-    },
-  ];
+  const fetchEmployeeDetails = async (postmanId) => {
+    const employeeRef = doc(db, "employees", postmanId);
+    const employeeDoc = await getDoc(employeeRef);
 
-  useEffect(() => {
-    if (lastClickedMarker) {
-      markers.forEach((marker) => {
-        marker.setIcon(null);
-      });
-      lastClickedMarker.setIcon({
-        url: "http://maps.google.com/mapfiles/ms/icons/green-dot.png",
-      });
+    if (employeeDoc.exists()) {
+      return employeeDoc.data();
+    } else {
+      console.error("No such document!");
+      return null;
     }
-  }, [lastClickedMarker, markers]);
-
-  const handleCloseInfoBox = () => {
-    if (lastClickedMarker) {
-      lastClickedMarker.setIcon(null);
-    }
-    setSelectedLocation(null);
   };
 
-  const handleApiLoaded = (map, maps) => {
-    setMap(map);
-    setMaps(maps);
+  useEffect(() => {
+    const userLocationRef = ref(realtimeDB, "userLocation");
 
-    const newMarkers = locations.map((location) => {
-      const marker = new maps.Marker({
-        position: location,
-        map,
-        title: location.name,
+    const listener = onValue(
+      userLocationRef,
+      (snapshot) => {
+        const locationsData = [];
+        snapshot.forEach((childSnapshot) => {
+          const data = childSnapshot.val();
+          locationsData.push({
+            id: childSnapshot.key,
+            lat: data.lat,
+            lng: data.long,
+          });
+        });
+        setLocations(locationsData);
+      },
+      (error) => {
+        console.error("Error fetching user locations:", error);
+      }
+    );
+
+    return () => off(userLocationRef, "value", listener);
+  }, [realtimeDB]);
+
+  useEffect(() => {
+    if (lastClickedMarkerId) {
+      fetchEmployeeDetails(lastClickedMarkerId).then((data) => {
+        setEmployeeDetails(data);
+      });
+    }
+  }, [lastClickedMarkerId]);
+
+  useEffect(() => {
+    if (maps && map && locations.length > 0) {
+      markers.forEach((marker) => marker.setMap(null));
+
+      const newMarkers = locations.map((location) => {
+        const isGreen = location.id === lastClickedMarkerId;
+        const markerColor = isGreen ? "green" : "red"; // Set marker color based on whether it's the last clicked marker
+        const marker = new maps.Marker({
+          position: { lat: location.lat, lng: location.lng },
+          title: location.id,
+          icon: {
+            url: `http://maps.google.com/mapfiles/ms/icons/${markerColor}-dot.png`, // Use markerColor for icon color
+          },
+          map: map,
+        });
+
+        marker.addListener("click", () => {
+          setLastClickedMarkerId(location.id); // Update the last clicked marker ID
+        });
+
+        return marker;
       });
 
-      const infoWindow = new maps.InfoWindow({
-        content: `<h4>${location.name}</h4>`,
+      setMarkers(newMarkers);
+
+      const bounds = new maps.LatLngBounds();
+      newMarkers.forEach((marker) => {
+        bounds.extend(marker.getPosition());
       });
+      map.fitBounds(bounds);
+    }
+  }, [locations, maps, map, lastClickedMarkerId]);
 
-      marker.addListener("click", () => {
-        setLastClickedMarker(marker);
-        setSelectedLocation(location);
-      });
-
-      marker.addListener("mouseover", () => {
-        infoWindow.open(map, marker);
-      });
-
-      marker.addListener("mouseout", () => {
-        infoWindow.close();
-      });
-
-      return marker;
-    });
-
-    setMarkers(newMarkers);
+  const handleInfoBoxClose = () => {
+    setLastClickedMarkerId(null); // Clear the last clicked marker when the info box is closed
+    setEmployeeDetails(null);
   };
 
   return (
     <div style={{ height: "100vh", width: "100%" }}>
       <GoogleMapReact
         bootstrapURLKeys={{ key: process.env.REACT_APP_GOOGLE_MAPS_API_KEY }}
-        defaultCenter={locations[0]}
-        defaultZoom={16}
+        defaultCenter={{ lat: 0, lng: 0 }}
+        defaultZoom={10}
         yesIWantToUseGoogleMapApiInternals
-        onGoogleApiLoaded={({ map, maps }) => handleApiLoaded(map, maps)}
+        onGoogleApiLoaded={({ map, maps }) => {
+          setMap(map);
+          setMaps(maps);
+        }}
       ></GoogleMapReact>
-      {selectedLocation && (
+      {employeeDetails && (
         <div style={{ position: "absolute", top: 0, right: 0 }}>
-          <InfoBox location={selectedLocation} onClose={handleCloseInfoBox} />
+          <InfoBox
+            location={
+              locations.find((loc) => loc.id === lastClickedMarkerId) || {}
+            }
+            employeeData={employeeDetails}
+            onClose={handleInfoBoxClose}
+          />
         </div>
       )}
     </div>
   );
 };
 
-export default GoogleMap;
+export default MonitorPostman;
