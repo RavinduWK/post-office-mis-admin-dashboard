@@ -10,7 +10,6 @@ import { auth, db } from "../../config/firebase";
 const RegisterEmployee = () => {
 
   const handleSubmit = async (formData) => {
-    alert("Submit");
     try {
 
       let response = await fetch(
