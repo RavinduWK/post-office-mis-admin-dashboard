@@ -133,9 +133,6 @@ export async function createMailItem(
   if (addressDocSnapshot.exists()) {
     const regionID = addressDocSnapshot.data().RegionID;
     console.log(regionID);
-    console.log(postOfficeRegions);
-
-    console.log(postOfficeRegions.includes(regionID));
 
     if (postOfficeRegions.includes(regionID)) {
       mailItemData.status = "To be delivered";
@@ -154,21 +151,22 @@ export async function updateLatestMailId(newId) {
 }
 
 export async function fetchMailItems(postofficeRegions) {
-  console.log(postofficeRegions);
-
   // Step 1: Fetch all mail items of the specified types
   const mailItemsQuery = query(
     collection(db, "MailServiceItem"),
-    where("type", "in", ["normal post", "registered post", "logi post"])
+    where("type", "in", ["normal post", "registered post", "logi post"]),
+    where("status", "in", ["To be delivered", "Pending"])
   );
+
   const mailItemsSnapshot = await getDocs(mailItemsQuery);
   const allMailItems = mailItemsSnapshot.docs.map((doc) => ({
     ...doc.data(),
     id: doc.id,
   }));
 
-  // Step 2 and 3: Filter mail items based on the RegionID from the Address collection
-  const filteredMailItems = [];
+  // Step 2 and 3: Filter mail items based on the RegionID from the Address collection and fetch address details
+  const enhancedMailItems = [];
+
   for (let item of allMailItems) {
     console.log("Processing receiver_address_id:", item.receiver_address_id);
 
@@ -180,10 +178,19 @@ export async function fetchMailItems(postofficeRegions) {
 
     const addressDocRef = doc(db, "Address", item.receiver_address_id);
     const addressDocSnapshot = await getDoc(addressDocRef);
+
     if (addressDocSnapshot.exists()) {
-      const regionID = addressDocSnapshot.data().RegionID;
+      const addressData = addressDocSnapshot.data();
+      const regionID = addressData.RegionID;
+
       if (postofficeRegions.includes(regionID)) {
-        filteredMailItems.push(item);
+        enhancedMailItems.push({
+          ...item,
+          HouseNo: addressData.HouseNo,
+          Address_line_1: addressData.Address_line_1,
+          Address_line_2: addressData.Address_line_2,
+          City: addressData.City,
+        });
       }
     } else {
       console.warn(
@@ -193,7 +200,7 @@ export async function fetchMailItems(postofficeRegions) {
     }
   }
 
-  return filteredMailItems;
+  return enhancedMailItems;
 }
 
 export async function fetchPostmenForPostOffice(postOfficeId) {
@@ -250,15 +257,21 @@ export async function fetchEmployeeNameById(employeeId) {
   }
 }
 
-export async function updateAssignedPostman(itemId, postmanId) {
+export async function updateAssignedPostmanAndStatus(itemId, postmanId) {
   try {
     // Reference to the specific mail item by its ID
     const mailItemRef = doc(db, "MailServiceItem", itemId);
 
-    // Update the assigned_postman field with the provided postmanId
-    await setDoc(mailItemRef, { assigned_postman: postmanId }, { merge: true });
+    // Update the assigned_postman field with the provided postmanId and set the status to "assigned"
+    await setDoc(
+      mailItemRef,
+      { assigned_postman: postmanId, status: "assigned" },
+      { merge: true }
+    );
 
-    console.log(`Mail item ${itemId} updated with postman ${postmanId}`);
+    console.log(
+      `Mail item ${itemId} updated with postman ${postmanId} and status set to assigned`
+    );
   } catch (error) {
     console.error("Error updating assigned postman:", error);
     throw error;

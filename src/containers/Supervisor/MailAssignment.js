@@ -16,7 +16,7 @@ import {
   fetchPostOfficeRegions,
   fetchPostmenForPostOffice,
   fetchSupervisorPostOfficeId,
-  updateAssignedPostman,
+  updateAssignedPostmanAndStatus,
 } from "../../data/databaseFunctions";
 
 const MailAssignment = () => {
@@ -40,7 +40,11 @@ const MailAssignment = () => {
       const items = await fetchMailItems(postOfficeRegions);
       setMailItems(items);
     }
+    console.log(mailItems);
     fetchData();
+    if (mailItems.length === 0) {
+      alert("Nothing to be assigned!");
+    }
   }, []);
 
   const handlePostmanChange = (event, itemId) => {
@@ -51,13 +55,18 @@ const MailAssignment = () => {
   };
 
   const handleConfirmAssignments = async () => {
-    for (const itemId in selectedPostmen) {
-      const postmanId = selectedPostmen[itemId];
-      // Assuming you have a function to update the mail item's assigned_postman field
-      await updateAssignedPostman(itemId, postmanId);
+    for (const item of mailItems) {
+      const itemId = item.id;
+      const postmanId = selectedPostmen[itemId] || item.assigned_postman;
+      if (postmanId) {
+        // Update the mail item's assigned_postman field and set its status to "assigned"
+        await updateAssignedPostmanAndStatus(itemId, postmanId);
+      }
+
+      alert("Mail assignments and statuses updated successfully!");
     }
-    // Optionally, you can refresh the data or provide some feedback to the user
-    alert("Mail assignments updated successfully!");
+
+    window.location.reload();
   };
 
   return (
@@ -87,12 +96,12 @@ const MailAssignment = () => {
               <TableCell
                 sx={{ fontWeight: "bold", color: "white", fontSize: "1.1rem" }}
               >
-                Street 1
+                Line 1
               </TableCell>
               <TableCell
                 sx={{ fontWeight: "bold", color: "white", fontSize: "1.1rem" }}
               >
-                Street 2
+                Line 2
               </TableCell>
               <TableCell
                 sx={{ fontWeight: "bold", color: "white", fontSize: "1.1rem" }}
@@ -115,10 +124,10 @@ const MailAssignment = () => {
                 }}
               >
                 <TableCell>{item.id}</TableCell>
-                <TableCell>{item.receiver_address_id}</TableCell>
-                <TableCell>{item.street1}</TableCell>
-                <TableCell>{item.street2}</TableCell>
-                <TableCell>{item.city}</TableCell>
+                <TableCell>{item.HouseNo}</TableCell> {/* Address No */}
+                <TableCell>{item.Address_line_1}</TableCell> {/* Street 1 */}
+                <TableCell>{item.Address_line_2}</TableCell> {/* Street 2 */}
+                <TableCell>{item.City}</TableCell> {/* City */}
                 <TableCell>
                   <Select
                     value={
@@ -143,6 +152,7 @@ const MailAssignment = () => {
           <Button
             variant="contained"
             onClick={handleConfirmAssignments}
+            disabled={mailItems.length === 0} // <-- Add this line
             sx={{
               marginTop: "60px",
               backgroundColor: "#852318",
