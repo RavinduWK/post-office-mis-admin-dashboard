@@ -16,6 +16,7 @@ import {
   fetchPostOfficeRegions,
   fetchPostmenForPostOffice,
   fetchSupervisorPostOfficeId,
+  updateAssignedPostman,
 } from "../../data/databaseFunctions";
 
 const MailAssignment = () => {
@@ -47,6 +48,16 @@ const MailAssignment = () => {
       ...prev,
       [itemId]: event.target.value,
     }));
+  };
+
+  const handleConfirmAssignments = async () => {
+    for (const itemId in selectedPostmen) {
+      const postmanId = selectedPostmen[itemId];
+      // Assuming you have a function to update the mail item's assigned_postman field
+      await updateAssignedPostman(itemId, postmanId);
+    }
+    // Optionally, you can refresh the data or provide some feedback to the user
+    alert("Mail assignments updated successfully!");
   };
 
   return (
@@ -111,14 +122,14 @@ const MailAssignment = () => {
                 <TableCell>
                   <Select
                     value={
-                      postmanNameMapping[item.assigned_postman] || "Unknown"
+                      selectedPostmen[item.id] || item.assigned_postman || ""
                     }
                     onChange={(event) => handlePostmanChange(event, item.id)}
                     sx={{ width: "200px", fontSize: "0.75em" }}
                   >
                     <MenuItem value="">Select Postman</MenuItem>
                     {postmen.map((postman) => (
-                      <MenuItem key={postman.id} value={postman.name}>
+                      <MenuItem key={postman.id} value={postman.id}>
                         {postmanNameMapping[postman.id] || "Unknown"}
                       </MenuItem>
                     ))}
@@ -131,6 +142,7 @@ const MailAssignment = () => {
         <Box display="flex" justifyContent="center">
           <Button
             variant="contained"
+            onClick={handleConfirmAssignments}
             sx={{
               marginTop: "60px",
               backgroundColor: "#852318",

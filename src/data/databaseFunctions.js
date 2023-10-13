@@ -249,3 +249,18 @@ export async function fetchEmployeeNameById(employeeId) {
     return null;
   }
 }
+
+export async function updateAssignedPostman(itemId, postmanId) {
+  try {
+    // Reference to the specific mail item by its ID
+    const mailItemRef = doc(db, "MailServiceItem", itemId);
+
+    // Update the assigned_postman field with the provided postmanId
+    await setDoc(mailItemRef, { assigned_postman: postmanId }, { merge: true });
+
+    console.log(`Mail item ${itemId} updated with postman ${postmanId}`);
+  } catch (error) {
+    console.error("Error updating assigned postman:", error);
+    throw error;
+  }
+}
