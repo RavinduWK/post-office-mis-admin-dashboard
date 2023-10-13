@@ -10,6 +10,7 @@ import Statistics from "../containers/Postmaster/PostOfficeStatistics";
 import MonitorPostman from "../containers/Postmaster/MonitorPostman";
 import RegisterEmployee from "../containers/Postmaster/RegisterEmployee";
 import ViewFeedback from "../containers/Postmaster/ViewFeedback";
+import DashboardPostmaster from "../containers/Common/DashboardPostmaster";
 
 function PostmasterInterface() {
   const [theme, colorMode] = useMode();
@@ -35,7 +36,7 @@ function PostmasterInterface() {
             style={{ overflowY: "auto", height: "100vh" }}
           >
             <Routes>
-              <Route path="" element={<DashBoard role="Postmaster" />} />
+              <Route path="" element={<DashboardPostmaster />} />
               <Route path="normal-post" element={<RegisterEmployee />} />
               <Route path="statistics" element={<Statistics />} />
               <Route path="live-delivery-map" element={<MonitorPostman />} />

@@ -6,6 +6,7 @@ import {
   TableCell,
   TableHead,
   TableRow,
+  useTheme,
   Button,
 } from "@mui/material";
 import { moneyOrderData } from "../../data/moneyOrderData";
@@ -55,10 +56,11 @@ const PayMoneyOrder = () => {
       console.error("Error updating document: ", e);
     }
   };
+  const theme = useTheme();
 
   return (
     <div>
-      <h1>Pay Money Orders</h1>
+      <h1 sx={{ color: theme.palette.text.typography }}>Pay Money Orders</h1>
 
       <Table
         sx={{
@@ -69,7 +71,11 @@ const PayMoneyOrder = () => {
         }}
       >
         <TableHead>
-          <TableRow sx={{ backgroundColor: "#852318" }}>
+          <TableRow
+            sx={{
+              backgroundColor: "#852318",
+            }}
+          >
             {" "}
             {/* Changed color to dark green */}
             <TableCell sx={headerCellStyle}>PID</TableCell>
@@ -82,7 +88,10 @@ const PayMoneyOrder = () => {
         </TableHead>
         <TableBody>
           {rows.map((row, index) => (
-            <TableRow key={index} sx={{ backgroundColor: "white" }}>
+            <TableRow
+              key={index}
+              sx={{ backgroundColor: theme.palette.background.dialogBox }}
+            >
               <TableCell>{row.pid}</TableCell>
               <TableCell>{row.recipient_nic}</TableCell>
               <TableCell>{row.recipient_name}</TableCell>

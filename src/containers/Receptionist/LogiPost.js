@@ -1,67 +1,77 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Box } from "@mui/material";
 import MailForm from "../../components/MailForm";
 import CostCalculator from "../../components/CostCalculator";
 import { fieldsData, postOfficeData } from "../../data/formFields";
 import { useNavigate } from "react-router-dom";
-
-import { doc, getDoc, setDoc } from "firebase/firestore";
-
-import { db } from "../../config/firebase";
 import { generateRandomString } from "../../utils/SecurityCode";
+import {
+  getLatestMailId,
+  createMailItem,
+  getAssignedPostman,
+  fetchUserID,
+  fetchPostOfficeRegions,
+  updateLatestMailId,
+} from "../../data/databaseFunctions";
 
 const LogiPost = () => {
   const navigate = useNavigate();
+  const [securityNumber, setSecurityNumber] = useState("");
+  const [cost, setCost] = useState("");
 
   const senderFields = [
     fieldsData.senderName,
-    fieldsData.senderDistrict,
+    // fieldsData.senderDistrict,
     fieldsData.senderCity,
     fieldsData.senderAddress,
   ];
 
   const recipientFields = [
     fieldsData.recipientName,
-    fieldsData.recipientDistrict,
+    // fieldsData.recipientDistrict,
     fieldsData.recipientCity,
     fieldsData.recipientAddress,
   ];
 
   const transactionFields = [fieldsData.cost];
 
-  const postOfficeFields = [
-    postOfficeData.acceptedPostOffice,
-    postOfficeData.destinationPostOffice,
-  ];
-
   const handleSubmit = async (formState) => {
     try {
-      // Step 1: Get the latest ID from the "metadata" document
-      const docRef = doc(db, "metadata", "mailService");
-      const docSnap = await getDoc(docRef);
+      // Get the latest ID from the "metadata" document
+      const newId = await getLatestMailId();
 
-      let newId;
-      if (docSnap.exists()) {
-        // Increment the latest ID to generate a new ID
-        newId = docSnap.data().latestId + 1;
-      } else {
-        // If the "metadata" document does not exist, initialize the ID to 100000
-        newId = 100000;
-      }
+      // Get the receptionist ID asynchronously
+      const receptionistID = await fetchUserID();
 
-      // Step 2: Update the "metadata" document with the new ID
-      await setDoc(docRef, { latestId: newId });
+      // Get the regions belong to the post office
+      const postOfficeRegions = await fetchPostOfficeRegions();
 
-      // Step 3: Create a new mail item with the new ID
+      // Get the assigned postman
+      const assignedPostman = await getAssignedPostman(
+        formState.receiver_address_id,
+        postOfficeRegions
+      );
+
+      // Create a new mail item with the new ID
+      const type = "logi post";
       const mailId = `12${newId}`;
-      await setDoc(doc(db, "MailServiceItems", mailId), {
-        ...formState,
-        type: "logi post",
-        security_number: generateRandomString(10),
-      });
+      const securityNumber = generateRandomString(10);
 
-      console.log("Document successfully written with ID: ", mailId);
-      navigate("success");
+      await createMailItem(
+        mailId,
+        formState,
+        type,
+        assignedPostman,
+        receptionistID,
+        postOfficeRegions,
+        securityNumber
+      );
+      await updateLatestMailId(newId);
+      setSecurityNumber(securityNumber);
+      console.log("Document successfully written with ID: " + mailId);
+      navigate("success", {
+        state: { mailId, securityNumber, cost: formState.cost },
+      });
     } catch (e) {
       console.error("Error adding document: ", e);
     }
@@ -82,9 +92,8 @@ const LogiPost = () => {
             { label: "Recipient's Details", fields: recipientFields },
             { label: "Transaction Details", fields: transactionFields },
           ]}
-          selectionGroups={[{ fields: postOfficeFields }]}
+          selectionGroups={[]}
           onFormSubmit={handleSubmit}
-          addressSuggestionsFields={["recipient_city", "recipient_address"]}
         />
         <CostCalculator />
       </Box>

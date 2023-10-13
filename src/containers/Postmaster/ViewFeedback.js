@@ -7,9 +7,11 @@ import {
   serverTimestamp,
 } from "firebase/firestore";
 import { db } from "../../config/firebase";
+import { useTheme } from "@mui/material";
 
 const ViewFeedback = () => {
   const [feedbacks, setFeedbacks] = useState([]);
+  const theme = useTheme();
 
   useEffect(() => {
     // Fetch feedback data from Firestore
@@ -70,7 +72,7 @@ const ViewFeedback = () => {
         <div
           key={feedback.id || index}
           style={{
-            backgroundColor: "#fff",
+            backgroundColor: theme.palette.background.feedbacks,
             padding: "20px",
             margin: "10px",
             borderRadius: "10px",
@@ -118,7 +120,7 @@ const ViewFeedback = () => {
         <div
           key={feedback.id || index}
           style={{
-            backgroundColor: "#f2f2f2",
+            backgroundColor: theme.palette.background.feedbacksRead,
             padding: "20px",
             margin: "10px",
             borderRadius: "10px",
