@@ -133,6 +133,11 @@ export const supervisorMenuItems = [
         icon: <AssignmentTurnedInOutlinedIcon />,
       },
       {
+        title: "Mail Items",
+        to: "/supervisor/mail-items",
+        icon: <AssignmentTurnedInOutlinedIcon />,
+      },
+      {
         title: "Mail Transfer",
         to: "/supervisor/mail-transfer",
         icon: <Truck size={25} />,

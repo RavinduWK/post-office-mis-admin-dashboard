@@ -48,7 +48,7 @@ const LogiPost = () => {
 
       // Get the assigned postman
       const assignedPostman = await getAssignedPostman(
-        formState.recipient_address_id,
+        formState.receiver_address_id,
         postOfficeRegions
       );
 
