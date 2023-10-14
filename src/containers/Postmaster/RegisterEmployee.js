@@ -1,7 +1,6 @@
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState } from "react";
 import React from "react";
-import { Box, useTheme } from "@mui/material";
-
+import { Box } from "@mui/material";
 import MailForm from "../../components/MailForm";
 import { employeeRegisterData } from "../../data/formFields";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
@@ -9,104 +8,65 @@ import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
 import { auth, db } from "../../config/firebase";
 
 const RegisterEmployee = () => {
-  const [isUserAuthenticated, setIsUserAuthenticated] = useState(false);
-
-  useEffect(() => {
-    // Add an authentication state change listener
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      if (user && user.uid) {
-        // User is authenticated, their ID is available
-        setIsUserAuthenticated(true);
-      } else {
-        setIsUserAuthenticated(false);
-      }
-    });
-
-    // Clean up the listener when the component unmounts
-    return () => {
-      unsubscribe();
-    };
-  }, []);
-  const getPrefixForRole = (role) => {
-    // Map roles to prefixes as needed
-    switch (role) {
-      case "Postmaster":
-        return "PM";
-      case "Supervisor":
-        return "SP";
-      case "Receptionist":
-        return "RC";
-      case "Postman":
-        return "PT";
-      case "Dispatch Record Manager":
-        return "DM";
-      default:
-        return ""; // Default empty prefix
-    }
-  };
-
-  const generateEmployeeID = async (role) => {
-    // Get the latest employee counter for the specified role
-    const counterRef = doc(db, "employeeCounters", role);
-    const counterDoc = await getDoc(counterRef);
-    let currentCount = 1; // Default value if counter doesn't exist
-
-    if (counterDoc.exists()) {
-      currentCount = counterDoc.data().count;
-    }
-
-    // Increment the counter
-    const newCount = currentCount + 1;
-    await setDoc(counterRef, { count: newCount });
-
-    // Generate the employee ID with the specified format
-    const prefix = getPrefixForRole(role);
-    const paddedCount = newCount.toString().padStart(3, "0");
-    const employeeID = `${prefix}${paddedCount}`;
-    console.log("Generated Employee ID:", employeeID);
-    return employeeID;
-  };
 
   const handleSubmit = async (formData) => {
     try {
-      const user = await createUserWithEmailAndPassword(
-        auth,
-        formData.employee_email,
-        formData.password
+
+      let response = await fetch(
+        "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=" +
+          process.env.REACT_APP_API_KEY,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: formData.employee_email,
+            password: formData.password,
+            returnSecureToken: true,
+          }),
+        }
       );
 
-      if (user && user.uid) {
-        // User is authenticated, their ID is available
-        alert("Account created!");
+      if (response.ok) {
+        let data = await response.json();
+        let idtoken = data.idToken;
 
-        // Generate the employee ID based on the role
-        const employeeID = await generateEmployeeID(formData.employee_role);
-        console.log("Employee ID for Firestore:", employeeID);
+        let user = await fetch(
+          "https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=" +
+            process.env.REACT_APP_API_KEY,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ idToken: idtoken }),
+          }
+        );
 
-        // Create user data to store in Firestore
-        const userData = {
-          employeeID: employeeID,
-          name: formData.employee_full_name,
-          email: formData.employee_email,
-          NIC: formData.employee_nic,
-          DOB: formData.date_of_birth,
-          contact_number: formData.employee_contact_number,
-          role: formData.employee_role,
-        };
+        if (user.ok) {
+          let userData = await user.json();
+          let uid = userData.users[0].localId;
 
-        // Create a Firestore document with the user's UID as the document ID
-        const userDocRef = doc(db, "employees", user.uid);
-
-        // Use setDoc to create or overwrite the document
-        await setDoc(userDocRef, userData);
-
-        console.log("User registered and data saved to Firestore");
+          const employeeRef = doc(db, "employees", uid);
+          await setDoc(employeeRef, {
+            name: formData.employee_full_name,
+            email: formData.employee_email,
+            NIC: formData.employee_nic,
+            DOB: formData.date_of_birth,
+            contact_number: formData.employee_contact_number,
+            role: formData.employee_role,
+          });
+          console.log(`Employee registered successfully! USer ID: ${uid}`);
+        } else {
+          console.log(user);
+        }
       } else {
-        console.error("User not registered.");
+        console.log(response);
       }
     } catch (error) {
       // Handle errors
-      console.error("Error registering user:", error.message);
+      console.error("Error registering user:", error);
     }
   };
 
