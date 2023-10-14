@@ -200,6 +200,7 @@ export const themeSettings = (mode) => {
               inputField: "#291916",
               feedbacks: "#544441",
               feedbacksRead: "#452320",
+              tableHead: "#0d0a0a",
             },
           }
         : {
@@ -228,6 +229,7 @@ export const themeSettings = (mode) => {
               inputField: "#F0F0F0",
               feedbacks: colors.white,
               feedbacksRead: "#f2f2f2",
+              tableHead: "#852318",
             },
           }),
     },
