@@ -9,7 +9,7 @@ import { auth } from "../../config/firebase";
 import { getFirestore, doc, getDoc } from "firebase/firestore";
 import DashboardButton from "../../components/Buttons/DashboardButton";
 
-const DashboardRecipient = () => {
+const DashboardReceptionist = () => {
   const theme = useTheme();
   const [currentDateTime, setCurrentDateTime] = useState(new Date());
   const [userDetails, setUserDetails] = useState(null);
@@ -209,4 +209,4 @@ const DashboardRecipient = () => {
   );
 };
 
-export default DashboardRecipient;
+export default DashboardReceptionist;
