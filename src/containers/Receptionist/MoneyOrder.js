@@ -1,7 +1,7 @@
 import React from "react";
 import { Box } from "@mui/material";
-import MailForm from "../../components/MailForm";
-import CostCalculator from "../../components/CostCalculator";
+import MailForm from "../../components/Form/MailForm";
+import CostCalculator from "../../components/Form/CostCalculator";
 import { generateRandomString } from "../../utils/SecurityCode";
 import { fieldsData, postOfficeData } from "../../data/formFields";
 

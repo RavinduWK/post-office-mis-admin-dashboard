@@ -5,7 +5,7 @@ import { auth } from "../../config/firebase";
 import { getFirestore, doc, getDoc } from "firebase/firestore";
 import TransferWithinAStationIcon from "@mui/icons-material/TransferWithinAStation";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
-import DashboardButton from "../../components/DashboardButton";
+import DashboardButton from "../../components/Buttons/DashboardButton";
 
 const DashboardSupervisor = () => {
   const theme = useTheme();

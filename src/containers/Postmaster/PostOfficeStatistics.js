@@ -1,12 +1,12 @@
 import React, { useRef, useEffect } from "react";
 import { Box, Button, useTheme } from "@mui/material";
 import { tokens } from "../../styles/theme";
-import PieChart from "../../components/Charts/PieChart";
-import LineChart from "../../components/Charts/LineChart";
+import PieChart from "../../components/Statistics/PieChart";
+import LineChart from "../../components/Statistics/LineChart";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
-import SmallBoxes from "../../components/SmallBoxes";
-import BarChart from "./../../components/Charts/BarChart";
+import SmallBoxes from "../../components/Statistics/SmallBoxes";
+import BarChart from "./../../components/Statistics/BarChart";
 import { Chart, registerables } from "chart.js";
 
 Chart.register(...registerables);

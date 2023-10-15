@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Box } from "@mui/material";
-import BillForm from "../../components/BillForm";
+import BillForm from "../../components/Form/BillForm";
 import { useParams } from "react-router-dom";
 import { billPaymentData, postOfficeData } from "../../data/formFields";
 import { useNavigate } from "react-router-dom";

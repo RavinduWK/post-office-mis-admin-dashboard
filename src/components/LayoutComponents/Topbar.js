@@ -31,8 +31,8 @@ import {
 } from "@mui/icons-material";
 import ProfilePopup from "../../containers/Common/ProfilePage";
 import EditProfile from "../Options/EditProfile";
-import NotificationsDialog from "../NotificationsDialog";
-import HelpDialog from "../HelpDialog";
+import NotificationsDialog from "../Settings/NotificationsDialog";
+import HelpDialog from "../Settings/HelpDialog";
 
 const TopBar = ({ isCollapsed, setIsCollapsed, role }) => {
   const [anchorEl, setAnchorEl] = useState(null);

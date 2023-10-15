@@ -6,7 +6,7 @@ import FeedbackIcon from "@mui/icons-material/Feedback";
 import BarChartIcon from "@mui/icons-material/BarChart";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import MapIcon from "@mui/icons-material/Map";
-import DashboardButton from "../../components/DashboardButton";
+import DashboardButton from "../../components/Buttons/DashboardButton";
 
 const DashboardPostmaster = () => {
   const theme = useTheme();
