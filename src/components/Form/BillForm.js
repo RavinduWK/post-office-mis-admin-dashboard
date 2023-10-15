@@ -1,8 +1,8 @@
 import React from "react";
 import Box from "@mui/material/Box";
 import { Typography, Button, GlobalStyles, useTheme } from "@mui/material";
-import CustomTextField from "./CustomComponents/CustomTextField";
-import CustomFormControl from "./CustomComponents/CustomFormControl";
+import CustomTextField from "../CustomComponents/CustomTextField";
+import CustomFormControl from "../CustomComponents/CustomFormControl";
 
 function BillForm({ formTitle, fieldsGroups, selectionGroups, onSubmit }) {
   const [formState, setFormState] = React.useState({});

@@ -7,9 +7,9 @@ import MoneyIcon from "@mui/icons-material/Money";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import { auth } from "../../config/firebase";
 import { getFirestore, doc, getDoc } from "firebase/firestore";
-import DashboardButton from "../../components/DashboardButton";
+import DashboardButton from "../../components/Buttons/DashboardButton";
 
-const DashboardRecipient = () => {
+const DashboardReceptionist = () => {
   const theme = useTheme();
   const [currentDateTime, setCurrentDateTime] = useState(new Date());
   const [userDetails, setUserDetails] = useState(null);
@@ -209,4 +209,4 @@ const DashboardRecipient = () => {
   );
 };
 
-export default DashboardRecipient;
+export default DashboardReceptionist;

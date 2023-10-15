@@ -1,6 +1,6 @@
 import React from "react";
 import { Box } from "@mui/material";
-import StatBox from "./Charts/StatBox";
+import StatBox from "./StatBox";
 
 const SmallBoxes = () => {
   const totalCustomers = 5000;

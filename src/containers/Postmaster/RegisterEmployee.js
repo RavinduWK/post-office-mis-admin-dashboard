@@ -1,17 +1,39 @@
 import { useEffect, useState } from "react";
 import React from "react";
 import { Box } from "@mui/material";
-import MailForm from "../../components/MailForm";
+import MailForm from "../../components/Form/MailForm";
 import { employeeRegisterData } from "../../data/formFields";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
 import { auth, db } from "../../config/firebase";
 
 const RegisterEmployee = () => {
+  const allRoles = [
+    { label: "Postmaster", value: "Postmaster" },
+    { label: "Supervisor", value: "Supervisor" },
+    { label: "Receptionist", value: "Receptionist" },
+    { label: "Postman", value: "Postman" },
+    { label: "Dispatch Record Manager", value: "Dispatch Record Manager" },
+  ];
+
+  const employeeFields = [
+    employeeRegisterData.employeeFullName,
+    employeeRegisterData.employeeNIC,
+    employeeRegisterData.employeeEmail,
+    employeeRegisterData.employeeDateOfBirth,
+    employeeRegisterData.employeeContactNumber,
+    employeeRegisterData.accountPassword,
+  ];
+
+  const employeeRoleField = [
+    {
+      ...employeeRegisterData.employeeRole,
+      options: allRoles,
+    },
+  ];
 
   const handleSubmit = async (formData) => {
     try {
-
       let response = await fetch(
         "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=" +
           process.env.REACT_APP_API_KEY,
@@ -69,30 +91,6 @@ const RegisterEmployee = () => {
       console.error("Error registering user:", error);
     }
   };
-
-  const allRoles = [
-    { label: "Postmaster", value: 10 },
-    { label: "Supervisor", value: 20 },
-    { label: "Receptionist", value: 30 },
-    { label: "Postman", value: 40 },
-    { label: "Disparch Record Manager", value: 50 },
-  ];
-
-  const employeeFields = [
-    employeeRegisterData.employeeFullName,
-    employeeRegisterData.employeeNIC,
-    employeeRegisterData.employeeEmail,
-    employeeRegisterData.employeeDateOfBirth,
-    employeeRegisterData.employeeContactNumber,
-    employeeRegisterData.accountPassword,
-  ];
-
-  const employeeRoleField = [
-    {
-      ...employeeRegisterData.employeeRole,
-      options: allRoles,
-    },
-  ];
 
   return (
     <div>

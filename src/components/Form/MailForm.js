@@ -9,8 +9,8 @@ import {
   useTheme,
   ListItem,
 } from "@mui/material";
-import CustomTextField from "./CustomComponents/CustomTextField";
-import CustomFormControl from "./CustomComponents/CustomFormControl";
+import CustomTextField from "../CustomComponents/CustomTextField";
+import CustomFormControl from "../CustomComponents/CustomFormControl";
 import {
   doc,
   getFirestore,
@@ -20,7 +20,7 @@ import {
   where,
   onSnapshot,
 } from "firebase/firestore";
-import { db } from "../config/firebase";
+import { db } from "../../config/firebase";
 
 function MailForm({ formTitle, fieldsGroups, selectionGroups, onFormSubmit }) {
   const [formState, setFormState] = useState({});
