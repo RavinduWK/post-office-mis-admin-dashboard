@@ -11,6 +11,7 @@ import MailAssignment from "../containers/Supervisor/MailAssignment";
 import MailTransfer from "../containers/Supervisor/MailTransfer";
 import DashboardSupervisor from "../containers/Common/DashboardSupervisor";
 import MailItemsTable from "../containers/Supervisor/MailItems";
+import AddRoute from "../containers/Supervisor/AddRoute";
 
 function SupervisorInterface() {
   const [theme, colorMode] = useMode();
@@ -42,6 +43,7 @@ function SupervisorInterface() {
               <Route path="mail-assignment" element={<MailAssignment />} />
               <Route path="mail-items" element={<MailItemsTable />} />
               <Route path="mail-transfer" element={<MailTransfer />} />
+              <Route path="add-route" element={<AddRoute />} />
             </Routes>
           </main>
         </div>

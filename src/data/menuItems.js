@@ -142,6 +142,11 @@ export const supervisorMenuItems = [
         to: "/supervisor/mail-transfer",
         icon: <Truck size={25} />,
       },
+      {
+        title: "Add Route",
+        to: "/supervisor/add-route",
+        icon: <Truck size={25} />,
+      },
     ],
   },
 ];
