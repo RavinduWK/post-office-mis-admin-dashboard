@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { db } from "../../config/firebase";
 import {
   collection,
@@ -6,6 +8,7 @@ import {
   where,
   getDocs,
   doc,
+  addDoc,
   getDoc,
 } from "firebase/firestore";
 import {
@@ -23,16 +26,19 @@ import {
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
-import Barcode from "react-barcode";
-import { toJpeg } from "html-to-image";
 import LoadingScreen from "../Common/LoadingScreen";
+import {
+  fetchMainPostOfficeIdByDistrict,
+  fetchSupervisorPostOfficeId,
+  updateMailItemStatus,
+} from "../../data/databaseFunctions";
 
 const fetchMailItems = async () => {
   const mailServiceItemRef = collection(db, "MailServiceItem");
   const q = query(
     mailServiceItemRef,
     where("type", "in", ["normal post", "registered post", "logi post"]),
-    where("status", "==", "To be dispatched")
+    where("status", "==", "To be bundled")
   );
   const querySnapshot = await getDocs(q);
 
@@ -69,16 +75,6 @@ const ExpandableRow = ({ to, mailItems, date }) => {
     node.style.alignItems = "center";
 
     node.style.backgroundColor = "white";
-    node.appendChild(barcodeRef.current.cloneNode(true));
-
-    toJpeg(node, { quality: 0.95, width: 280, height: 160 }).then(function (
-      dataUrl
-    ) {
-      var link = document.createElement("a");
-      link.download = "barcode.jpeg";
-      link.href = dataUrl;
-      link.click();
-    });
   };
 
   return (
@@ -150,12 +146,6 @@ const ExpandableRow = ({ to, mailItems, date }) => {
               </TableBody>
             </Table>
           </TableContainer>
-          <Box mt={2} ref={barcodeRef}>
-            <Barcode value={to} />
-          </Box>
-          <Button variant="contained" onClick={printBarcode}>
-            Print Barcode
-          </Button>
         </Box>
       )}
     </Box>
@@ -163,13 +153,20 @@ const ExpandableRow = ({ to, mailItems, date }) => {
 };
 
 const MailTransfer = () => {
+  const [mailItems, setMailItems] = useState([]);
   const [mailData, setMailData] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [supervisorPostOfficeId, setSupervisorPostOfficeId] = useState(null);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       const mailItems = await fetchMailItems();
+
+      const id = await fetchSupervisorPostOfficeId();
+      setSupervisorPostOfficeId(id);
 
       const districtClassifiedData = {};
 
@@ -182,7 +179,7 @@ const MailTransfer = () => {
           if (!districtClassifiedData[district]) {
             districtClassifiedData[district] = [];
           }
-          item.PID = item.id; // Assuming item has an id field that represents the document id
+          item.PID = item.id;
           item.postType = item.type;
           item.destination = addressDetails.City;
           item.destinationAddress = `${addressDetails.HouseNo}, ${addressDetails.Address_line_1}, ${addressDetails.Address_line_2}, ${addressDetails.City}`;
@@ -193,12 +190,48 @@ const MailTransfer = () => {
 
       console.log("Classified data by district:", districtClassifiedData);
       setMailData(districtClassifiedData);
+      setMailItems(mailItems);
       setLoading(false);
     };
 
     fetchData();
   }, []);
 
+  const handleCreateBundle = async () => {
+    const firstDistrict = Object.keys(mailData)[0];
+
+    console.log(firstDistrict);
+    const destinationPostOfficeId = await fetchMainPostOfficeIdByDistrict(
+      firstDistrict
+    );
+    if (!destinationPostOfficeId) {
+      console.error(
+        "Couldn't find the post office ID for the district:",
+        firstDistrict
+      );
+      return; // If the post office ID is not found, exit the function early.
+    }
+    const bundleData = {
+      date: new Date().toISOString(),
+      destination_post_office_id: destinationPostOfficeId,
+      mail_service_items: Object.values(mailData).flatMap((districtMailData) =>
+        districtMailData.map((item) => item.PID)
+      ),
+      origin_post_office_id: supervisorPostOfficeId,
+      status: "Queued",
+    };
+
+    console.log(bundleData);
+    // Add new document to the "Bundle" collection
+    const newBundleDocRef = await addDoc(collection(db, "Bundle"), bundleData);
+
+    for (const mailItemId of bundleData.mail_service_items) {
+      await updateMailItemStatus(mailItemId, "Queued");
+    }
+
+    // Navigate to the new page
+    navigate(`${location.pathname}/bundles`);
+  };
   console.log("Current state of mailData:", mailData);
 
   return (
@@ -214,6 +247,34 @@ const MailTransfer = () => {
             date={new Date().toISOString().slice(0, 10)}
           />
         ))}
+      </Box>
+      <Box
+        display="flex"
+        flexDirection="column"
+        justifyContent="center"
+        alignItems="center"
+        mt={5}
+      >
+        {mailItems.length === 0 && (
+          <Typography variant="h3" sx={{ marginBottom: "40px" }}>
+            Nothing to be dispatched ...
+          </Typography>
+        )}
+        <Button
+          variant="contained"
+          onClick={handleCreateBundle}
+          disabled={mailItems.length === 0}
+          sx={{
+            backgroundColor: "#852318",
+            color: "white",
+            px: 10,
+            textTransform: "none",
+            fontSize: "18px",
+            borderRadius: "6px",
+          }}
+        >
+          Create Bundles
+        </Button>
       </Box>
     </Box>
   );

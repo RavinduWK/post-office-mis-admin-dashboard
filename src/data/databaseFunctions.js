@@ -6,6 +6,7 @@ import {
   collection,
   where,
   getDocs,
+  updateDoc,
   getFirestore,
 } from "firebase/firestore";
 import { db, auth } from "../config/firebase";
@@ -137,7 +138,7 @@ export async function createMailItem(
     if (postOfficeRegions.includes(regionID)) {
       mailItemData.status = "To be delivered";
     } else {
-      mailItemData.status = "To be dispatched";
+      mailItemData.status = "To be bundled";
     }
     mailItemData.assigned_postman = assignedPostman;
 
@@ -276,4 +277,21 @@ export async function updateAssignedPostmanAndStatus(itemId, postmanId) {
     console.error("Error updating assigned postman:", error);
     throw error;
   }
+}
+
+export async function fetchMainPostOfficeIdByDistrict(districtName) {
+  const mainPostOfficeRef = doc(db, "MainPostOffice", districtName); // Directly use the district name as the UID
+  const docSnapshot = await getDoc(mainPostOfficeRef);
+
+  // If the document exists, return the ID from its data. Otherwise, return null.
+  if (docSnapshot.exists()) {
+    return docSnapshot.data().ID;
+  }
+
+  return null;
+}
+
+export async function updateMailItemStatus(mailItemId, newStatus) {
+  const mailItemRef = doc(db, "MailServiceItem", mailItemId);
+  await updateDoc(mailItemRef, { status: newStatus });
 }
