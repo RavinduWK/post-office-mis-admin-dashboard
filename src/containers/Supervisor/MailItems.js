@@ -23,6 +23,7 @@ import {
 } from "firebase/firestore";
 import { db } from "../../config/firebase";
 import { fetchPostOfficeRegions } from "../../data/databaseFunctions";
+import LoadingScreen from "../Common/LoadingScreen";
 
 const MailItemsTable = () => {
   const theme = useTheme();
@@ -31,6 +32,7 @@ const MailItemsTable = () => {
   const [statusFilter, setStatusFilter] = useState("");
   const [attemptsFilter, setAttemptsFilter] = useState("");
   const [typeFilter, setTypeFilter] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const clearFilters = () => {
     setRegionFilter("");
@@ -41,6 +43,7 @@ const MailItemsTable = () => {
 
   useEffect(() => {
     async function fetchData() {
+      setLoading(true);
       const postofficeRegions = await fetchPostOfficeRegions();
 
       const filters = [
@@ -105,6 +108,7 @@ const MailItemsTable = () => {
 
           // Filter out null values (mail items that didn't meet the criteria)
           setMailItems(fetchedItems.filter((item) => item !== null));
+          setLoading(false);
         }
       );
 
@@ -117,6 +121,7 @@ const MailItemsTable = () => {
 
   return (
     <Box>
+      {loading && <LoadingScreen text="Loading..." />}
       <h2>Mail Items</h2>
       <Box display="flex" justifyContent="flex-end" marginBottom="1rem">
         <FormControl

@@ -13,10 +13,12 @@ import {
   fetchPostOfficeRegions,
   updateLatestMailId,
 } from "../../data/databaseFunctions";
+import LoadingScreen from "../Common/LoadingScreen";
 
 const RegisteredPost = () => {
   const navigate = useNavigate();
   const [securityNumber, setSecurityNumber] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const senderFields = [
     fieldsData.senderName,
@@ -35,6 +37,7 @@ const RegisteredPost = () => {
   const transactionFields = [fieldsData.cost];
 
   const handleSubmit = async (formState) => {
+    setLoading(true);
     try {
       // Get the latest ID from the "metadata" document
       const newId = await getLatestMailId();
@@ -73,11 +76,14 @@ const RegisteredPost = () => {
       });
     } catch (e) {
       console.error("Error adding document: ", e);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div>
+      {loading && <LoadingScreen />}
       <Box
         display="flex"
         flexDirection="row"

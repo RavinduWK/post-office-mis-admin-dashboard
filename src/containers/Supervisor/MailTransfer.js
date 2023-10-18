@@ -25,6 +25,7 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import Barcode from "react-barcode";
 import { toJpeg } from "html-to-image";
+import LoadingScreen from "../Common/LoadingScreen";
 
 const fetchMailItems = async () => {
   const mailServiceItemRef = collection(db, "MailServiceItem");
@@ -163,9 +164,11 @@ const ExpandableRow = ({ to, mailItems, date }) => {
 
 const MailTransfer = () => {
   const [mailData, setMailData] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
       const mailItems = await fetchMailItems();
 
       const districtClassifiedData = {};
@@ -190,6 +193,7 @@ const MailTransfer = () => {
 
       console.log("Classified data by district:", districtClassifiedData);
       setMailData(districtClassifiedData);
+      setLoading(false);
     };
 
     fetchData();
@@ -199,6 +203,7 @@ const MailTransfer = () => {
 
   return (
     <Box>
+      {loading && <LoadingScreen />}
       <h2>Mail Transfer List</h2>
       <Box sx={{ marginTop: "20px", mx: "15px" }}>
         {Object.entries(mailData).map(([district, items], index) => (

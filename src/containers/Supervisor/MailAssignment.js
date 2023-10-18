@@ -18,6 +18,7 @@ import {
   fetchSupervisorPostOfficeId,
   updateAssignedPostmanAndStatus,
 } from "../../data/databaseFunctions";
+import LoadingScreen from "../Common/LoadingScreen";
 
 const MailAssignment = () => {
   const theme = useTheme();
@@ -25,9 +26,11 @@ const MailAssignment = () => {
   const [mailItems, setMailItems] = useState([]);
   const [postmanNameMapping, setPostmanNameMapping] = useState({});
   const [postmen, setPostmen] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
+      setLoading(true);
       const postOfficeRegions = await fetchPostOfficeRegions();
       const postOfficeId = await fetchSupervisorPostOfficeId();
       const postmenList = await fetchPostmenForPostOffice(postOfficeId);
@@ -39,12 +42,10 @@ const MailAssignment = () => {
       setPostmen(postmenList);
       const items = await fetchMailItems(postOfficeRegions);
       setMailItems(items);
+      setLoading(false);
     }
     console.log(mailItems);
     fetchData();
-    if (mailItems.length === 0) {
-      alert("Nothing to be assigned!");
-    }
   }, []);
 
   const handlePostmanChange = (event, itemId) => {
@@ -71,6 +72,7 @@ const MailAssignment = () => {
 
   return (
     <Box>
+      {loading && <LoadingScreen text="Loading..." />}
       <h2>Mail Assignments</h2>
       <div>
         <Table
