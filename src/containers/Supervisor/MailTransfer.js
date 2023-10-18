@@ -1,4 +1,13 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { db } from "../../config/firebase";
+import {
+  collection,
+  query,
+  where,
+  getDocs,
+  doc,
+  getDoc,
+} from "firebase/firestore";
 import {
   Box,
   IconButton,
@@ -17,17 +26,40 @@ import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import Barcode from "react-barcode";
 import { toJpeg } from "html-to-image";
 
-const ExpandableRow = ({ to, numberOfItems, date }) => {
+const fetchMailItems = async () => {
+  const mailServiceItemRef = collection(db, "MailServiceItem");
+  const q = query(
+    mailServiceItemRef,
+    where("type", "in", ["normal post", "registered post", "logi post"]),
+    where("status", "==", "To be dispatched")
+  );
+  const querySnapshot = await getDocs(q);
+
+  const mailItems = querySnapshot.docs.map((doc) => ({
+    ...doc.data(),
+    id: doc.id, // This includes the document ID in the object
+  }));
+
+  console.log("Fetched mail items:", mailItems);
+
+  return mailItems;
+};
+
+const fetchAddressDetailsByAddressId = async (id) => {
+  const addressRef = collection(db, "Address");
+  const docSnapshot = await getDoc(doc(addressRef, id));
+
+  if (docSnapshot.exists()) {
+    return docSnapshot.data();
+  }
+
+  return null;
+};
+
+const ExpandableRow = ({ to, mailItems, date }) => {
   const [isOpen, setIsOpen] = useState(false);
   const theme = useTheme();
   const barcodeRef = useRef(null);
-
-  const items = Array.from({ length: numberOfItems }, (_, index) => ({
-    PID: `PID${index + 1}`,
-    postType: "Regular",
-    destination: to,
-    destinationAddress: "123 Main St",
-  }));
 
   const printBarcode = () => {
     const node = document.createElement("div");
@@ -47,6 +79,7 @@ const ExpandableRow = ({ to, numberOfItems, date }) => {
       link.click();
     });
   };
+
   return (
     <Box>
       <Box
@@ -60,7 +93,7 @@ const ExpandableRow = ({ to, numberOfItems, date }) => {
         backgroundColor={theme.palette.background.feedbacks}
       >
         <Typography>To: {to}</Typography>
-        <Typography>Number of Items: {numberOfItems}</Typography>
+        <Typography>Number of Items: {mailItems.length}</Typography>
         <Typography>Date: {date}</Typography>
         <IconButton onClick={() => setIsOpen((prev) => !prev)}>
           {isOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />}
@@ -100,7 +133,7 @@ const ExpandableRow = ({ to, numberOfItems, date }) => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {items.map((item, index) => (
+                {mailItems.map((item, index) => (
                   <TableRow
                     key={index}
                     sx={{
@@ -129,13 +162,53 @@ const ExpandableRow = ({ to, numberOfItems, date }) => {
 };
 
 const MailTransfer = () => {
+  const [mailData, setMailData] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const mailItems = await fetchMailItems();
+
+      const districtClassifiedData = {};
+
+      for (const item of mailItems) {
+        const addressDetails = await fetchAddressDetailsByAddressId(
+          item.receiver_address_id
+        );
+        if (addressDetails && addressDetails.District) {
+          const district = addressDetails.District;
+          if (!districtClassifiedData[district]) {
+            districtClassifiedData[district] = [];
+          }
+          item.PID = item.id; // Assuming item has an id field that represents the document id
+          item.postType = item.type;
+          item.destination = addressDetails.City;
+          item.destinationAddress = `${addressDetails.HouseNo}, ${addressDetails.Address_line_1}, ${addressDetails.Address_line_2}, ${addressDetails.City}`;
+
+          districtClassifiedData[district].push(item);
+        }
+      }
+
+      console.log("Classified data by district:", districtClassifiedData);
+      setMailData(districtClassifiedData);
+    };
+
+    fetchData();
+  }, []);
+
+  console.log("Current state of mailData:", mailData);
+
   return (
     <Box>
       <h2>Mail Transfer List</h2>
       <Box sx={{ marginTop: "20px", mx: "15px" }}>
-        <ExpandableRow to="Colombo" numberOfItems={2} date="2023/09/11" />
-        <ExpandableRow to="Galle" numberOfItems={3} date="2023/09/12" />
-        <ExpandableRow to="Kandy" numberOfItems={4} date="2023/09/13" />
+        {Object.entries(mailData).map(([district, items], index) => (
+          <ExpandableRow
+            key={index}
+            to={district}
+            mailItems={items} // Changed from numberOfItems to mailItems
+            date={new Date().toISOString().slice(0, 10)}
+          />
+        ))}
       </Box>
     </Box>
   );
