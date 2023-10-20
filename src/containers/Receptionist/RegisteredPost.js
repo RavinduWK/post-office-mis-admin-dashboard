@@ -72,7 +72,7 @@ const RegisteredPost = () => {
       setSecurityNumber(securityNumber);
       console.log("Document successfully written with ID: " + mailId);
       navigate("success", {
-        state: { mailId, securityNumber, cost: formState.cost },
+        state: { mailId, securityNumber, cost: formState.cost, type },
       });
     } catch (e) {
       console.error("Error adding document: ", e);
@@ -100,7 +100,7 @@ const RegisteredPost = () => {
           selectionGroups={[]}
           onFormSubmit={handleSubmit}
         />
-        <CostCalculator />
+        <CostCalculator mailType="registered" />
       </Box>
     </div>
   );

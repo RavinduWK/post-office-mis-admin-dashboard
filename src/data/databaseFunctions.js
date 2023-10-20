@@ -295,3 +295,23 @@ export async function updateMailItemStatus(mailItemId, newStatus) {
   const mailItemRef = doc(db, "MailServiceItem", mailItemId);
   await updateDoc(mailItemRef, { status: newStatus });
 }
+
+export async function fetchRatesForMailType(mailType) {
+  const collectionRef = collection(db, "PostalRates");
+  const queryRef = query(collectionRef, where("title", "==", "rates"));
+  const snapshot = await getDocs(queryRef);
+
+  if (snapshot.empty) {
+    console.log("No matching documents.");
+    return null;
+  }
+
+  let ratesData = null;
+  snapshot.forEach((doc) => {
+    if (doc.data()[mailType]) {
+      ratesData = doc.data()[mailType];
+    }
+  });
+
+  return ratesData;
+}

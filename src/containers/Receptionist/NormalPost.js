@@ -16,7 +16,7 @@ import LoadingScreen from "../Common/LoadingScreen";
 
 const NormalPost = () => {
   const navigate = useNavigate();
-  const [securityNumber, setSecurityNumber] = useState("-------------");
+  const [securityNumber, setSecurityNumber] = useState("<Not Applicable>");
   const [cost, setCost] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -60,7 +60,7 @@ const NormalPost = () => {
       await updateLatestMailId(newId);
       console.log("Document successfully written with ID: " + mailId);
       navigate("success", {
-        state: { mailId, securityNumber, cost: formState.cost },
+        state: { mailId, securityNumber, cost: formState.cost, type },
       });
     } catch (e) {
       console.error("Error adding document: ", e);
@@ -87,7 +87,7 @@ const NormalPost = () => {
           selectionGroups={[]}
           onFormSubmit={handleSubmit}
         />
-        <CostCalculator />
+        <CostCalculator mailType="normal" />
       </Box>
     </div>
   );

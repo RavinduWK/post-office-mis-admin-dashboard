@@ -32,7 +32,7 @@ const PayMoneyOrder = () => {
 
   useEffect(() => {
     const q = query(
-      collection(db, "MailServiceItems"),
+      collection(db, "MailServiceItem"),
       where("paid", "==", false)
     );
 

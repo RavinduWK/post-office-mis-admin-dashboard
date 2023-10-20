@@ -3,16 +3,47 @@ import { Box, Divider, Button, TextField, GlobalStyles } from "@mui/material";
 import Barcode from "react-barcode";
 import { toJpeg } from "html-to-image";
 import { useLocation } from "react-router-dom";
+import emailjs from "@emailjs/browser";
 
 function ConfirmationPage() {
   const [senderEmail, setSendersEmail] = useState("");
   const location = useLocation();
-  const { mailId, securityNumber, cost } = location.state || {};
+  const { mailId, securityNumber, cost, type } = location.state || {};
   const receiptRef = useRef(null);
   const barcodeRef = useRef(null);
   const labelRef = useRef(null);
 
-  console.log(cost);
+  const handleSendEmail = () => {
+    if (senderEmail.trim() === "") {
+      alert("Please enter a recipient's email address.");
+      return;
+    }
+
+    // Send the email using emailjs
+    emailjs
+      .send(
+        process.env.REACT_APP_EMAILJS_SERVICE_ID,
+        process.env.REACT_APP_EMAILJS_SENDER_TEMPLATE_ID,
+        {
+          to_email: senderEmail,
+          type: type,
+          PID: mailId,
+          security_code: securityNumber,
+        },
+        process.env.REACT_APP_EMAILJS_PUBLIC_KEY
+      )
+      .then(
+        (result) => {
+          console.log(result.text);
+          alert("Receipt sent successfully!");
+        },
+        (error) => {
+          console.log(error.text);
+          alert("Failed to send the receipt. Please try again.");
+        }
+      );
+  };
+
   const printReceipt = () => {
     const node = document.createElement("div");
     node.style.display = "flex";
@@ -69,21 +100,7 @@ function ConfirmationPage() {
       link.click();
     });
   };
-  const handleSendEmail = () => {
-    if (senderEmail.trim() === "") {
-      alert("Please enter a recipient's email address.");
-      return;
-    }
 
-    // Define the email content
-    const emailContent = {
-      to: senderEmail,
-      subject: "Mail Receipt",
-      text: `Thank you for using our service!\n\nYour PID: ${mailId}\nSecurity Number: ${securityNumber}`,
-    };
-
-    // Send the email
-  };
   return (
     <Box
       sx={{
