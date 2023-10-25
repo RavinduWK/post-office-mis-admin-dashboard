@@ -149,7 +149,19 @@ const TopBar = ({ isCollapsed, setIsCollapsed, role }) => {
           </Box>
         </Box>
       </FlexBetween>
-
+      <FlexBetween>
+        <Typography
+          variant="subtitle2"
+          sx={{
+            color: theme.palette.text.typography,
+            fontWeight: "bold",
+            fontSize: "30px",
+            marginBottom: "10px",
+          }}
+        >
+          Post Office - Katubedda
+        </Typography>
+      </FlexBetween>
       <FlexBetween gap="1rem">
         <IconButton onClick={colorMode.toggleColorMode}>
           {theme.palette.mode === "dark" ? (

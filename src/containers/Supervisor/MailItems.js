@@ -23,6 +23,27 @@ import {
 } from "firebase/firestore";
 import { db } from "../../config/firebase";
 import { fetchPostOfficeRegions } from "../../data/databaseFunctions";
+import LoadingScreen from "../Common/LoadingScreen";
+
+const getStatusColor = (status) => {
+  switch (status) {
+    case "assigned":
+      return "green";
+    case "OutForDelivery":
+      return "orange";
+    case "TobeReturned":
+      return "purple";
+    case "Delivered":
+    case "Returned":
+      return "#E39F05";
+    case "Failed":
+    case "Neglected":
+    case "DeliveryCancelled":
+      return "red";
+    default:
+      return "grey";
+  }
+};
 
 const MailItemsTable = () => {
   const theme = useTheme();
@@ -31,6 +52,7 @@ const MailItemsTable = () => {
   const [statusFilter, setStatusFilter] = useState("");
   const [attemptsFilter, setAttemptsFilter] = useState("");
   const [typeFilter, setTypeFilter] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const clearFilters = () => {
     setRegionFilter("");
@@ -41,13 +63,24 @@ const MailItemsTable = () => {
 
   useEffect(() => {
     async function fetchData() {
+      setLoading(true);
       const postofficeRegions = await fetchPostOfficeRegions();
+
+      const statusList = [
+        "assigned",
+        "OutForDelivery",
+        "TobeReturned",
+        "Delivered",
+        "Failed",
+        "Neglected",
+        "DeliveryCancelled",
+        "Returned",
+      ];
 
       const filters = [
         where("type", "in", ["normal post", "registered post", "logi post"]),
-        where("status", "==", "assigned"),
+        where("status", "in", statusList),
       ];
-
       //   if (regionFilter) filters.push(where("RegionID", "==", regionFilter));
       if (typeFilter) filters.push(where("type", "==", typeFilter));
       if (statusFilter) filters.push(where("status", "==", statusFilter));
@@ -105,6 +138,7 @@ const MailItemsTable = () => {
 
           // Filter out null values (mail items that didn't meet the criteria)
           setMailItems(fetchedItems.filter((item) => item !== null));
+          setLoading(false);
         }
       );
 
@@ -117,6 +151,7 @@ const MailItemsTable = () => {
 
   return (
     <Box>
+      {loading && <LoadingScreen text="Loading..." />}
       <h2>Mail Items</h2>
       <Box display="flex" justifyContent="flex-end" marginBottom="1rem">
         <FormControl
@@ -313,7 +348,7 @@ const MailItemsTable = () => {
                 <Box
                   style={{
                     display: "inline-block",
-                    backgroundColor: "green",
+                    backgroundColor: getStatusColor(item.status),
                     borderRadius: "8px",
                     padding: "4px 8px",
                     color: "white",

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Divider,
@@ -8,19 +8,29 @@ import {
   useTheme,
   GlobalStyles,
 } from "@mui/material";
+import { fetchRatesForMailType } from "../../data/databaseFunctions";
 
-const CostCalculator = () => {
+const CostCalculator = ({ mailType }) => {
   const theme = useTheme();
   const [weight, setWeight] = useState("");
   const [cost, setCost] = useState(null);
+  const [ratesData, setRatesData] = useState([]);
 
-  const dummyData = [
-    { minWeight: 0, maxWeight: 100, cost: 50 },
-    { minWeight: 101, maxWeight: 200, cost: 70 },
-    { minWeight: 201, maxWeight: 500, cost: 100 },
-    { minWeight: 501, maxWeight: 1000, cost: 150 },
-    // add more ranges as necessary
-  ];
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await fetchRatesForMailType(mailType);
+      if (data) {
+        let ratesArray = [];
+        Object.entries(data).forEach(([key, value], index) => {
+          const maxWeight = parseInt(key.split("<=")[1], 10);
+          const minWeight = index > 0 ? ratesArray[index - 1].maxWeight + 1 : 0;
+          ratesArray.push({ minWeight, maxWeight, cost: value });
+        });
+        setRatesData(ratesArray);
+      }
+    };
+    fetchData();
+  }, [mailType]);
 
   const handleChange = (event) => {
     setWeight(event.target.value);
@@ -33,7 +43,7 @@ const CostCalculator = () => {
       return;
     }
 
-    const applicableRate = dummyData.find(
+    const applicableRate = ratesData.find(
       (rate) => weightNum >= rate.minWeight && weightNum <= rate.maxWeight
     );
 

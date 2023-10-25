@@ -6,6 +6,7 @@ import {
   collection,
   where,
   getDocs,
+  updateDoc,
   getFirestore,
   getCountFromServer,
 } from "firebase/firestore";
@@ -138,7 +139,7 @@ export async function createMailItem(
     if (postOfficeRegions.includes(regionID)) {
       mailItemData.status = "To be delivered";
     } else {
-      mailItemData.status = "To be dispatched";
+      mailItemData.status = "To be bundled";
     }
     mailItemData.assigned_postman = assignedPostman;
 
@@ -277,6 +278,43 @@ export async function updateAssignedPostmanAndStatus(itemId, postmanId) {
     console.error("Error updating assigned postman:", error);
     throw error;
   }
+}
+
+export async function fetchMainPostOfficeIdByDistrict(districtName) {
+  const mainPostOfficeRef = doc(db, "MainPostOffice", districtName); // Directly use the district name as the UID
+  const docSnapshot = await getDoc(mainPostOfficeRef);
+
+  // If the document exists, return the ID from its data. Otherwise, return null.
+  if (docSnapshot.exists()) {
+    return docSnapshot.data().ID;
+  }
+
+  return null;
+}
+
+export async function updateMailItemStatus(mailItemId, newStatus) {
+  const mailItemRef = doc(db, "MailServiceItem", mailItemId);
+  await updateDoc(mailItemRef, { status: newStatus });
+}
+
+export async function fetchRatesForMailType(mailType) {
+  const collectionRef = collection(db, "PostalRates");
+  const queryRef = query(collectionRef, where("title", "==", "rates"));
+  const snapshot = await getDocs(queryRef);
+
+  if (snapshot.empty) {
+    console.log("No matching documents.");
+    return null;
+  }
+
+  let ratesData = null;
+  snapshot.forEach((doc) => {
+    if (doc.data()[mailType]) {
+      ratesData = doc.data()[mailType];
+    }
+  });
+
+  return ratesData;
 }
 
 export async function getEmployeeCount(){
@@ -533,4 +571,41 @@ function isSameDay(d1, d2){
   return d1.getFullYear() === d2.getFullYear() &&
     d1.getMonth() === d2.getMonth() &&
     d1.getDate() === d2.getDate();
+=======
+export async function fetchMainPostOfficeIdByDistrict(districtName) {
+  const mainPostOfficeRef = doc(db, "MainPostOffice", districtName); // Directly use the district name as the UID
+  const docSnapshot = await getDoc(mainPostOfficeRef);
+
+  // If the document exists, return the ID from its data. Otherwise, return null.
+  if (docSnapshot.exists()) {
+    return docSnapshot.data().ID;
+  }
+
+  return null;
 }
+
+export async function updateMailItemStatus(mailItemId, newStatus) {
+  const mailItemRef = doc(db, "MailServiceItem", mailItemId);
+  await updateDoc(mailItemRef, { status: newStatus });
+}
+
+export async function fetchRatesForMailType(mailType) {
+  const collectionRef = collection(db, "PostalRates");
+  const queryRef = query(collectionRef, where("title", "==", "rates"));
+  const snapshot = await getDocs(queryRef);
+
+  if (snapshot.empty) {
+    console.log("No matching documents.");
+    return null;
+  }
+
+  let ratesData = null;
+  snapshot.forEach((doc) => {
+    if (doc.data()[mailType]) {
+      ratesData = doc.data()[mailType];
+    }
+  });
+
+  return ratesData;
+
+

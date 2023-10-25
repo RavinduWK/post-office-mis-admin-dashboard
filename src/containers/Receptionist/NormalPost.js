@@ -12,11 +12,13 @@ import {
   fetchPostOfficeRegions,
   updateLatestMailId,
 } from "../../data/databaseFunctions"; // Import database service functions
+import LoadingScreen from "../Common/LoadingScreen";
 
 const NormalPost = () => {
   const navigate = useNavigate();
-  const [securityNumber, setSecurityNumber] = useState("-------------");
+  const [securityNumber, setSecurityNumber] = useState("<Not Applicable>");
   const [cost, setCost] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const recipientFields = [
     fieldsData.recipientName,
@@ -27,6 +29,7 @@ const NormalPost = () => {
   const transactionFields = [fieldsData.cost];
 
   const handleSubmit = async (formState) => {
+    setLoading(true);
     try {
       // Get the latest ID from the "metadata" document
       const newId = await getLatestMailId();
@@ -57,15 +60,18 @@ const NormalPost = () => {
       await updateLatestMailId(newId);
       console.log("Document successfully written with ID: " + mailId);
       navigate("success", {
-        state: { mailId, securityNumber, cost: formState.cost },
+        state: { mailId, securityNumber, cost: formState.cost, type },
       });
     } catch (e) {
       console.error("Error adding document: ", e);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div>
+      {loading && <LoadingScreen />}
       <Box
         display="flex"
         flexDirection="row"
@@ -81,7 +87,7 @@ const NormalPost = () => {
           selectionGroups={[]}
           onFormSubmit={handleSubmit}
         />
-        <CostCalculator />
+        <CostCalculator mailType="normal" />
       </Box>
     </div>
   );

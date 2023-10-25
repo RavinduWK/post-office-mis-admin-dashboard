@@ -18,16 +18,18 @@ import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../config/firebase";
 import getUserRole from "../../data/getRole";
+import LoadingScreen from "./LoadingScreen";
 
 const Login = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleSignIn = async (e) => {
     e.preventDefault();
-
+    setLoading(true);
     try {
       const userCredential = await signInWithEmailAndPassword(
         auth,
@@ -48,6 +50,8 @@ const Login = () => {
       console.error("Error signing in: ", error);
       alert("Invalid username or password");
       // Handle error appropriately in your app
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -82,6 +86,7 @@ const Login = () => {
 
   return (
     <div className="app-container">
+      {loading && <LoadingScreen />}
       <Grid
         container
         justifyContent="center"

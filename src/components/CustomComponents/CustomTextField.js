@@ -24,7 +24,7 @@ const CustomTextField = ({ label, id, required = false, value, onChange }) => {
           m: 1,
           minWidth: 550,
           backgroundColor: theme.palette.background.inputField,
-          "& .MuiOutlinedInput-root": {
+          "& .MuiOutlinedInputRoot": {
             "&.Mui-focused fieldset": {
               borderColor: theme.palette.background.inputField,
             },

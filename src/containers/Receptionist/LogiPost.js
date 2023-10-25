@@ -13,11 +13,13 @@ import {
   fetchPostOfficeRegions,
   updateLatestMailId,
 } from "../../data/databaseFunctions";
+import LoadingScreen from "../Common/LoadingScreen";
 
 const LogiPost = () => {
   const navigate = useNavigate();
   const [securityNumber, setSecurityNumber] = useState("");
   const [cost, setCost] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const senderFields = [
     fieldsData.senderName,
@@ -36,6 +38,7 @@ const LogiPost = () => {
   const transactionFields = [fieldsData.cost];
 
   const handleSubmit = async (formState) => {
+    setLoading(true);
     try {
       // Get the latest ID from the "metadata" document
       const newId = await getLatestMailId();
@@ -70,15 +73,18 @@ const LogiPost = () => {
       setSecurityNumber(securityNumber);
       console.log("Document successfully written with ID: " + mailId);
       navigate("success", {
-        state: { mailId, securityNumber, cost: formState.cost },
+        state: { mailId, securityNumber, cost: formState.cost, type },
       });
     } catch (e) {
       console.error("Error adding document: ", e);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div>
+      {loading && <LoadingScreen />}
       <Box
         display="flex"
         flexDirection="row"
@@ -95,7 +101,7 @@ const LogiPost = () => {
           selectionGroups={[]}
           onFormSubmit={handleSubmit}
         />
-        <CostCalculator />
+        <CostCalculator mailType="logi" />
       </Box>
     </div>
   );

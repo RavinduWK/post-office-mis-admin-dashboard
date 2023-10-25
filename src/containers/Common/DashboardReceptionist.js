@@ -88,10 +88,19 @@ const DashboardReceptionist = () => {
     const year = dateObj.getFullYear();
 
     // For time
-    const hours = dateObj.getHours().toString().padStart(2, "0");
+    let hours = dateObj.getHours();
     const minutes = dateObj.getMinutes().toString().padStart(2, "0");
     const seconds = dateObj.getSeconds().toString().padStart(2, "0");
-    const time = `${hours}:${minutes}:${seconds}`;
+    const ampm = hours >= 12 ? "PM" : "AM";
+
+    // Convert hours from 24-hour to 12-hour format
+    hours = hours % 12;
+    // Convert 0-hour (midnight) to 12-hour format
+    hours = hours ? hours : 12;
+
+    const time = `${hours
+      .toString()
+      .padStart(2, "0")}:${minutes}:${seconds} ${ampm}`;
 
     return {
       date: `${dayOfWeek} ${dateOfMonth}${suffix} ${monthName}, ${year}`,
@@ -103,17 +112,53 @@ const DashboardReceptionist = () => {
 
   return (
     <Box p={4}>
-      <Box>
-        <Typography
-          variant="h2"
-          style={{ flexGrow: 1, textAlign: "center", fontWeight: "bold" }}
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "space-between",
+        }}
+      >
+        <Box>
+          <Typography
+            variant="h2"
+            style={{
+              marginTop: 5,
+              marginLeft: 5,
+              textAlign: "left",
+              fontWeight: "bold",
+            }}
+          >
+            Receptionist Dashboard
+          </Typography>
+        </Box>
+        <Box
+          textAlign="right"
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between",
+            padding: "0.5rem",
+            borderRadius: "4px",
+          }}
         >
-          Receptionist Dashboard
-        </Typography>
-      </Box>
-      <Box textAlign="right">
-        <Typography variant="body1">{date}</Typography>
-        <Typography variant="body1">{time}</Typography>
+          <Typography
+            variant="h4"
+            sx={{
+              fontWeight: "bold",
+              color: theme.palette.text.typography,
+              marginBottom: 2,
+            }}
+          >
+            {date}
+          </Typography>
+          <Typography
+            variant="h3"
+            sx={{ fontWeight: "bold", color: theme.palette.text.typography }}
+          >
+            {time}
+          </Typography>
+        </Box>
       </Box>
 
       <Paper
