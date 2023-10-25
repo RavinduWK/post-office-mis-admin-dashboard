@@ -1,5 +1,16 @@
 import React, { useState, useRef } from "react";
-import { Box, Divider, Button, TextField, GlobalStyles } from "@mui/material";
+import {
+  Box,
+  Divider,
+  Button,
+  TextField,
+  GlobalStyles,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+} from "@mui/material";
 import Barcode from "react-barcode";
 import { toJpeg } from "html-to-image";
 import { useLocation } from "react-router-dom";
@@ -7,9 +18,13 @@ import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
 import emailjs from "@emailjs/browser";
 import ReceiptTemplate from "../../components/Documents/ReceiptTemplate";
+import LoadingScreen from "./LoadingScreen";
 
 function ConfirmationPage() {
   const [senderEmail, setSendersEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
   const location = useLocation();
   const { mailId, securityNumber, cost, type } = location.state || {};
   const receiptRef = useRef(null);
@@ -21,6 +36,7 @@ function ConfirmationPage() {
       alert("Please enter a recipient's email address.");
       return;
     }
+    setLoading(true);
 
     // Send the email using emailjs
     emailjs
@@ -37,12 +53,15 @@ function ConfirmationPage() {
       )
       .then(
         (result) => {
+          setLoading(false);
           console.log(result.text);
-          alert("Receipt sent successfully!");
+          setModalMessage("Receipt sent successfully!");
+          setOpen(true);
         },
         (error) => {
-          console.log(error.text);
-          alert("Failed to send the receipt. Please try again.");
+          setLoading(false);
+          setModalMessage("Failed to send the receipt. Please try again.");
+          setOpen(true);
         }
       );
   };
@@ -121,6 +140,10 @@ function ConfirmationPage() {
     });
   };
 
+  const handleClose = () => {
+    setOpen(false);
+  };
+
   return (
     <Box
       sx={{
@@ -132,6 +155,7 @@ function ConfirmationPage() {
         py: 2,
       }}
     >
+      {loading && <LoadingScreen text="Sending email..." />}
       <Box sx={{ my: "10px" }}>
         <h2>Success</h2>
       </Box>
@@ -364,6 +388,24 @@ function ConfirmationPage() {
           </Button>
         </Box>
       </Box>
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">{"Notification"}</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            {modalMessage}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} color="primary">
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }
