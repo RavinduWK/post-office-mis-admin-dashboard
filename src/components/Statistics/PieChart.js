@@ -3,7 +3,7 @@ import { Pie } from "react-chartjs-2";
 import { useTheme } from "@mui/material";
 import { tokens } from "../../styles/theme";
 
-const DailyRevenuePieChart = () => {
+const DailyRevenuePieChart = ({dataValues}) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
 
@@ -17,7 +17,7 @@ const DailyRevenuePieChart = () => {
     ],
     datasets: [
       {
-        data: [4000, 20000, 7500, 12000, 5000],
+        data: dataValues,
         backgroundColor: [
           "rgba(255, 99, 132, 0.2)",
           "rgba(54, 162, 235, 0.2)",
