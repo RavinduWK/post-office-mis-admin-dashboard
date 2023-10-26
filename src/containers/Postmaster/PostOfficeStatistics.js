@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { Box, Button, useTheme } from "@mui/material";
 import { tokens } from "../../styles/theme";
 import PieChart from "../../components/Statistics/PieChart";
@@ -8,8 +8,11 @@ import jsPDF from "jspdf";
 import SmallBoxes from "../../components/Statistics/SmallBoxes";
 import BarChart from "./../../components/Statistics/BarChart";
 import { Chart, registerables } from "chart.js";
-import { useState } from "react";
-import { getDailyServices, getDataForLineChart, getRevenueData } from "../../data/databaseFunctions";
+import {
+  getDailyServices,
+  getDataForLineChart,
+  getRevenueData,
+} from "../../data/databaseFunctions";
 
 Chart.register(...registerables);
 
@@ -28,15 +31,14 @@ const Statistics = () => {
   const setBarChartData = async (event) => {
     setDataForBarChart(await getDailyServices());
   };
-  
+
   const setRevenue = async (event) => {
-    setRevenueData((await getRevenueData()));
+    setRevenueData(await getRevenueData());
   };
 
   setRevenue();
   setLineChartData();
   setBarChartData();
-
 
   useEffect(() => {
     if (pdfRef.current) {
@@ -47,19 +49,6 @@ const Statistics = () => {
   }, []);
 
   const printDocument = () => {
-    //const myWindow = window.open("http://localhost:3000/postmaster/statistics");
-    /*window.focus();
-    window.print();*/
-
-    /*var divContents = document.getElementById("pie  Chart").innerHTML; 
-            var a = window.open('', '', 'height=500, width=500'); 
-            a.document.write('<html>'); 
-            a.document.write('<body > <h1>Div contents are <br>'); 
-            a.document.write(divContents); 
-            a.document.write('</body></html>'); 
-            a.document.close(); 
-            a.print();*/
-
     const input = pdfRef.current;
 
     if (!input) {
@@ -76,12 +65,11 @@ const Statistics = () => {
       const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
       pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
       pdf.save(`Statistics-${new Date().toISOString()}.pdf`);
-
     });
   };
 
   return (
-    <Box 
+    <Box
       ref={pdfRef}
       sx={{
         display: "flex",
@@ -90,12 +78,10 @@ const Statistics = () => {
         justifyContent: "space-between",
       }}
     >
-      <Box
-         display="flex" justifyContent="Center"
-      >
-        <Box sx={{ marginLeft: "10px" }} >
+      <Box display="flex" justifyContent="Center">
+        <Box sx={{ marginLeft: "10px" }}>
           <center>
-            <SmallBoxes totalRev={revenueData[1]}/>
+            <SmallBoxes totalRev={revenueData[1]} />
             <Box
               sx={{
                 width: "450px",
@@ -110,7 +96,7 @@ const Statistics = () => {
               }}
             >
               <h2>Daily Revenue</h2>
-              <PieChart dataValues={revenueData}/>
+              <PieChart dataValues={revenueData} />
             </Box>
             <Box
               sx={{

@@ -3,7 +3,7 @@ import { Pie } from "react-chartjs-2";
 import { useTheme } from "@mui/material";
 import { tokens } from "../../styles/theme";
 
-const DailyRevenuePieChart = ({dataValues}) => {
+const DailyRevenuePieChart = ({ dataValues }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
 
