@@ -1,35 +1,105 @@
 import React, { useState, useRef } from "react";
-import { Box, Divider, Button, TextField, GlobalStyles } from "@mui/material";
+import {
+  Box,
+  Divider,
+  Button,
+  TextField,
+  GlobalStyles,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+} from "@mui/material";
 import Barcode from "react-barcode";
 import { toJpeg } from "html-to-image";
 import { useLocation } from "react-router-dom";
+import { jsPDF } from "jspdf";
+import html2canvas from "html2canvas";
+import emailjs from "@emailjs/browser";
+import ReceiptTemplate from "../../components/Documents/ReceiptTemplate";
+import LoadingScreen from "./LoadingScreen";
 
 function ConfirmationPage() {
   const [senderEmail, setSendersEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
   const location = useLocation();
-  const { mailId, securityNumber, cost } = location.state || {};
+  const { mailId, securityNumber, cost, type } = location.state || {};
   const receiptRef = useRef(null);
   const barcodeRef = useRef(null);
   const labelRef = useRef(null);
 
-  console.log(cost);
-  const printReceipt = () => {
-    const node = document.createElement("div");
-    node.style.display = "flex";
-    node.style.justifyContent = "center";
-    node.style.alignItems = "center";
+  const handleSendEmail = () => {
+    if (senderEmail.trim() === "") {
+      alert("Please enter a recipient's email address.");
+      return;
+    }
+    setLoading(true);
 
-    node.style.backgroundColor = "white";
-    node.appendChild(receiptRef.current.cloneNode(true));
+    // Send the email using emailjs
+    emailjs
+      .send(
+        process.env.REACT_APP_EMAILJS_SERVICE_ID,
+        process.env.REACT_APP_EMAILJS_SENDER_TEMPLATE_ID,
+        {
+          to_email: senderEmail,
+          type: type,
+          PID: mailId,
+          security_code: securityNumber,
+        },
+        process.env.REACT_APP_EMAILJS_PUBLIC_KEY
+      )
+      .then(
+        (result) => {
+          setLoading(false);
+          console.log(result.text);
+          setModalMessage("Receipt sent successfully!");
+          setOpen(true);
+        },
+        (error) => {
+          setLoading(false);
+          setModalMessage("Failed to send the receipt. Please try again.");
+          setOpen(true);
+        }
+      );
+  };
 
-    toJpeg(node, { quality: 0.95, width: 500, height: 700 }).then(function (
-      dataUrl
-    ) {
-      var link = document.createElement("a");
-      link.download = "receipt.jpeg";
-      link.href = dataUrl;
-      link.click();
+  const generatePDF = async () => {
+    const receiptElement = document.getElementById("pdf-receipt");
+
+    // Temporarily make the content visible for html2canvas
+    receiptElement.style.display = "block";
+
+    const canvas = await html2canvas(receiptElement);
+
+    // Hide the content again after the snapshot is taken
+    receiptElement.style.display = "none";
+
+    const imgData = canvas.toDataURL("image/jpeg", 1.0); // using JPEG format (max quality)
+
+    // Define custom PDF size
+    const pdfWidth = 105; // width in mm (A4 size)
+    const pdfHeight = 150; // height in mm (A4 size)
+
+    const pdf = new jsPDF({
+      orientation: "portrait",
+      unit: "mm",
+      format: [pdfWidth, pdfHeight],
     });
+
+    // Calculate scaling factors for zoom out effect
+    const zoomFactor = 1; // Adjust this value to zoom in or out
+    const imageWidth = ((canvas.width * 25.4) / 96) * zoomFactor; // Convert pixels to mm and apply zoom factor
+    const imageHeight = ((canvas.height * 25.4) / 96) * zoomFactor; // Convert pixels to mm and apply zoom factor
+
+    // Calculate x and y offsets to center the image on the page
+    const offsetX = (pdfWidth - imageWidth) / 2;
+    const offsetY = (pdfHeight - imageHeight) / 2;
+
+    pdf.addImage(imgData, "JPEG", offsetX, offsetY, imageWidth, imageHeight);
+    pdf.save("receipt.pdf");
   };
 
   const printBarCode = () => {
@@ -69,21 +139,11 @@ function ConfirmationPage() {
       link.click();
     });
   };
-  const handleSendEmail = () => {
-    if (senderEmail.trim() === "") {
-      alert("Please enter a recipient's email address.");
-      return;
-    }
 
-    // Define the email content
-    const emailContent = {
-      to: senderEmail,
-      subject: "Mail Receipt",
-      text: `Thank you for using our service!\n\nYour PID: ${mailId}\nSecurity Number: ${securityNumber}`,
-    };
-
-    // Send the email
+  const handleClose = () => {
+    setOpen(false);
   };
+
   return (
     <Box
       sx={{
@@ -95,6 +155,7 @@ function ConfirmationPage() {
         py: 2,
       }}
     >
+      {loading && <LoadingScreen text="Sending email..." />}
       <Box sx={{ my: "10px" }}>
         <h2>Success</h2>
       </Box>
@@ -300,9 +361,18 @@ function ConfirmationPage() {
             }}
           />
 
+          <div id="pdf-receipt" style={{ display: "none" }}>
+            <ReceiptTemplate
+              mailId={mailId}
+              securityNumber={securityNumber}
+              cost={cost}
+              type={type}
+            />
+          </div>
+
           <Button
             variant="contained"
-            onClick={printReceipt}
+            onClick={generatePDF}
             sx={{
               backgroundColor: "#852318",
               color: "white",
@@ -318,6 +388,24 @@ function ConfirmationPage() {
           </Button>
         </Box>
       </Box>
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">{"Notification"}</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            {modalMessage}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} color="primary">
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

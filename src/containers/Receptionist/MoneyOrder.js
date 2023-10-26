@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Box } from "@mui/material";
 import MailForm from "../../components/Form/MailForm";
 import CostCalculator from "../../components/Form/CostCalculator";
@@ -8,7 +8,7 @@ import { fieldsData, postOfficeData } from "../../data/formFields";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 
 import { db } from "../../config/firebase";
-import { FlashOnRounded } from "@mui/icons-material";
+import LoadingScreen from "../Common/LoadingScreen";
 
 const MoneyOrder = () => {
   const senderFields = [fieldsData.senderName, fieldsData.senderNIC];
@@ -21,8 +21,10 @@ const MoneyOrder = () => {
     postOfficeData.acceptedPostOffice,
     postOfficeData.destinationPostOffice,
   ];
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (formState) => {
+    setLoading(true);
     try {
       // Step 1: Get the latest ID from the "metadata" document
       const docRef = doc(db, "metadata", "mailService");
@@ -42,7 +44,7 @@ const MoneyOrder = () => {
 
       // Step 3: Create a new mail item with the new ID
       const mailId = `${newId}MO`;
-      await setDoc(doc(db, "MailServiceItems", mailId), {
+      await setDoc(doc(db, "MailServiceItem", mailId), {
         ...formState,
         type: "money order",
         paid: false,
@@ -52,11 +54,14 @@ const MoneyOrder = () => {
       console.log("Document successfully written with ID: ", mailId);
     } catch (e) {
       console.error("Error adding document: ", e);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div>
+      {loading && <LoadingScreen />}
       <Box
         display="flex"
         flexDirection="row"
@@ -73,7 +78,7 @@ const MoneyOrder = () => {
           selectionGroups={[{ fields: postOfficeFields }]}
           onFormSubmit={handleSubmit}
         />
-        <CostCalculator />
+        <CostCalculator mailType="MoneyOrder" />
       </Box>
     </div>
   );

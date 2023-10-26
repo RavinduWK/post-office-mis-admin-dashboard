@@ -6,6 +6,7 @@ import {
   collection,
   where,
   getDocs,
+  updateDoc,
   getFirestore,
   getCountFromServer,
 } from "firebase/firestore";
@@ -138,7 +139,7 @@ export async function createMailItem(
     if (postOfficeRegions.includes(regionID)) {
       mailItemData.status = "To be delivered";
     } else {
-      mailItemData.status = "To be dispatched";
+      mailItemData.status = "To be bundled";
     }
     mailItemData.assigned_postman = assignedPostman;
 
@@ -279,101 +280,149 @@ export async function updateAssignedPostmanAndStatus(itemId, postmanId) {
   }
 }
 
-export async function getEmployeeCount(){
-  return (await getCountFromServer(collection(db,'employees'))).data().count;
+export async function fetchMainPostOfficeIdByDistrict(districtName) {
+  const mainPostOfficeRef = doc(db, "MainPostOffice", districtName); // Directly use the district name as the UID
+  const docSnapshot = await getDoc(mainPostOfficeRef);
+
+  // If the document exists, return the ID from its data. Otherwise, return null.
+  if (docSnapshot.exists()) {
+    return docSnapshot.data().ID;
+  }
+
+  return null;
 }
 
-export async function getMailCount(){
-  return (await getCountFromServer(collection(db,'MailServiceItem'))).data().count;
+export async function updateMailItemStatus(mailItemId, newStatus) {
+  const mailItemRef = doc(db, "MailServiceItem", mailItemId);
+  await updateDoc(mailItemRef, { status: newStatus });
 }
 
-export async function getRegisteredAddresses(){
-  return (await getCountFromServer(collection(db,'Address'))).data().count;
+export async function fetchRatesForMailType(mailType) {
+  const collectionRef = collection(db, "PostalRates");
+  const queryRef = query(collectionRef, where("title", "==", "rates"));
+  const snapshot = await getDocs(queryRef);
+
+  if (snapshot.empty) {
+    console.log("No matching documents.");
+    return null;
+  }
+
+  let ratesData = null;
+  snapshot.forEach((doc) => {
+    if (doc.data()[mailType]) {
+      ratesData = doc.data()[mailType];
+    }
+  });
+
+  return ratesData;
 }
 
-export async function getRegions(){
-  return (await getCountFromServer(collection(db,'Region'))).data().count;
+export async function getEmployeeCount() {
+  return (await getCountFromServer(collection(db, "employees"))).data().count;
 }
 
-export async function getRevenueData(){
-  const collectionRef = collection(db,'MailServiceItem');
+export async function getMailCount() {
+  return (await getCountFromServer(collection(db, "MailServiceItem"))).data()
+    .count;
+}
+
+export async function getRegisteredAddresses() {
+  return (await getCountFromServer(collection(db, "Address"))).data().count;
+}
+
+export async function getRegions() {
+  return (await getCountFromServer(collection(db, "Region"))).data().count;
+}
+
+export async function getRevenueData() {
+  const collectionRef = collection(db, "MailServiceItem");
   const queryRef = query(collectionRef);
-  
-  let normalPostRevenue=0;
-  let registeredPostRevenue=0;
-  let logiPostRevenue=0;
-  let fastTrackCourierRevenue=0;
-  let acceptedMoneyOrdersRevenue=0;
+
+  let normalPostRevenue = 0;
+  let registeredPostRevenue = 0;
+  let logiPostRevenue = 0;
+  let fastTrackCourierRevenue = 0;
+  let acceptedMoneyOrdersRevenue = 0;
 
   const snapshot = await getDocs(queryRef);
   if (snapshot.empty) {
-    return [normalPostRevenue, registeredPostRevenue, logiPostRevenue, fastTrackCourierRevenue, acceptedMoneyOrdersRevenue];
-  } 
-  
+    return [
+      normalPostRevenue,
+      registeredPostRevenue,
+      logiPostRevenue,
+      fastTrackCourierRevenue,
+      acceptedMoneyOrdersRevenue,
+    ];
+  }
+
   snapshot.forEach((doc) => {
     const data = doc.data();
 
-    if(data.type === "normal post"){
+    if (data.type === "normal post") {
       normalPostRevenue += parseInt(data.cost);
-    }else if(data.type === "registered post"){
+    } else if (data.type === "registered post") {
       registeredPostRevenue += parseInt(data.cost);
-    }else if(data.type === "logi post"){
+    } else if (data.type === "logi post") {
       logiPostRevenue += parseInt(data.cost);
-    }else if(data.type === "fast track courier"){
+    } else if (data.type === "fast track courier") {
       fastTrackCourierRevenue += parseInt(data.cost);
-    }else if(data.type === "money orders"){
+    } else if (data.type === "money orders") {
       acceptedMoneyOrdersRevenue += 100;
     }
-
   });
 
-  return [normalPostRevenue, registeredPostRevenue, logiPostRevenue, fastTrackCourierRevenue, acceptedMoneyOrdersRevenue];
+  return [
+    normalPostRevenue,
+    registeredPostRevenue,
+    logiPostRevenue,
+    fastTrackCourierRevenue,
+    acceptedMoneyOrdersRevenue,
+  ];
 }
 
-export async function getTotalRevenue(){
-  const collectionRef = collection(db,'MailServiceItem');
+export async function getTotalRevenue() {
+  const collectionRef = collection(db, "MailServiceItem");
   const queryRef = query(collectionRef);
-  
+
   const snapshot = await getDocs(queryRef);
   if (snapshot.empty) {
     return "0 LKR";
-  } 
+  }
 
-  let revenue=0;
-  
+  let revenue = 0;
+
   snapshot.forEach((doc) => {
     const data = doc.data();
-    revenue+=parseInt(data.cost);
+    revenue += parseInt(data.cost);
   });
 
-
-  return revenue.toLocaleString('en-US') + " LKR";
+  return revenue.toLocaleString("en-US") + " LKR";
 }
 
-export async function getCustomerCount(){
-  const collectionRef = collection(db,'MailServiceItem');
+export async function getCustomerCount() {
+  const collectionRef = collection(db, "MailServiceItem");
   const queryRef = query(collectionRef);
-  
+
   const snapshot = await getDocs(queryRef);
   if (snapshot.empty) {
-    return '0';
-  } 
+    return "0";
+  }
 
   let theSet = new Set();
-  
+
   snapshot.forEach((doc) => {
     const data = doc.data();
     theSet.add(data.recipient_name);
-    if(data.sender_name !== undefined){
+    if (data.sender_name !== undefined) {
       theSet.add(data.sender_name);
     }
   });
 
-  return theSet.size.toLocaleString('en-US');
+  return theSet.size.toLocaleString("en-US");
 }
 
-export async function getDataForLineChart(){
-  const collectionRef = collection(db,'MailServiceItem');
+export async function getDataForLineChart() {
+  const collectionRef = collection(db, "MailServiceItem");
 
   let normalPostDates = [];
   let registeredPostDates = [];
@@ -382,38 +431,50 @@ export async function getDataForLineChart(){
   let acceptedMoneyOrdersDates = [];
 
   const queryRef = query(collectionRef);
-  
+
   const snapshot = await getDocs(queryRef);
   if (snapshot.empty) {
     let nowDate = new Date();
-    return [(nowDate.getFullYear() + "/" + nowDate.getMonth() + "/" + nowDate.getDate()), 1, [], [], [], [], []];
-  } 
+    return [
+      nowDate.getFullYear() +
+        "/" +
+        nowDate.getMonth() +
+        "/" +
+        nowDate.getDate(),
+      1,
+      [],
+      [],
+      [],
+      [],
+      [],
+    ];
+  }
 
   let minDate = new Date("2070-01-01");
   let maxDate = new Date("1970-01-01");
-  
+
   snapshot.forEach((doc) => {
     const data = doc.data();
     const date = data.timestamp.toDate();
 
-    if(minDate.getTime()>date.getTime()){
-      minDate=date;
+    if (minDate.getTime() > date.getTime()) {
+      minDate = date;
       console.log(date);
       console.log(minDate);
     }
-    if(maxDate.getTime()<date.getTime()){
-      maxDate=date;
+    if (maxDate.getTime() < date.getTime()) {
+      maxDate = date;
     }
 
-    if(data.type === "normal post"){
+    if (data.type === "normal post") {
       normalPostDates.push(date);
-    }else if(data.type === "registered post"){
+    } else if (data.type === "registered post") {
       registeredPostDates.push(date);
-    }else if(data.type === "logi post"){
+    } else if (data.type === "logi post") {
       logiPostDates.push(date);
-    }else if(data.type === "fast track courier"){
+    } else if (data.type === "fast track courier") {
       fastTrackCourierDates.push(date);
-    }else if(data.type === "money orders"){
+    } else if (data.type === "money orders") {
       acceptedMoneyOrdersDates.push(date);
     }
   });
@@ -426,46 +487,49 @@ export async function getDataForLineChart(){
 
   let checkUntilThisTime = new Date(maxDate.getTime());
   checkUntilThisTime.setHours(0);
-  checkUntilThisTime.setMinutes(0,0,0);
-  checkUntilThisTime.setDate(checkUntilThisTime.getDate()+1)
+  checkUntilThisTime.setMinutes(0, 0, 0);
+  checkUntilThisTime.setDate(checkUntilThisTime.getDate() + 1);
 
-  let i=0;
-  for(let currentDate = new Date(minDate.getTime());currentDate.getTime()<checkUntilThisTime.getTime();currentDate.setDate(currentDate.getDate()+1)){
-
+  let i = 0;
+  for (
+    let currentDate = new Date(minDate.getTime());
+    currentDate.getTime() < checkUntilThisTime.getTime();
+    currentDate.setDate(currentDate.getDate() + 1)
+  ) {
     let nCount = 0;
     let rCount = 0;
     let lCount = 0;
     let fCount = 0;
     let aCount = 0;
-    
+
     normalPostCount.push(0);
     registeredPostCount.push(0);
     logiPostCount.push(0);
     fastTrackCourierCount.push(0);
     acceptedMoneyOrdersCount.push(0);
 
-    for(let n=0;n<normalPostDates.length;n++){
-      if(isSameDay(currentDate,normalPostDates[n])){
+    for (let n = 0; n < normalPostDates.length; n++) {
+      if (isSameDay(currentDate, normalPostDates[n])) {
         ++nCount;
       }
     }
-    for(let r=0;r<registeredPostDates.length;r++){
-      if(isSameDay(currentDate,registeredPostDates[r])){
+    for (let r = 0; r < registeredPostDates.length; r++) {
+      if (isSameDay(currentDate, registeredPostDates[r])) {
         ++rCount;
       }
     }
-    for(let l=0;l<logiPostDates.length;l++){
-      if(isSameDay(currentDate,logiPostDates[l])){
+    for (let l = 0; l < logiPostDates.length; l++) {
+      if (isSameDay(currentDate, logiPostDates[l])) {
         ++lCount;
       }
     }
-    for(let f=0;f<fastTrackCourierDates.length;f++){
-      if(isSameDay(currentDate,fastTrackCourierDates[f])){
+    for (let f = 0; f < fastTrackCourierDates.length; f++) {
+      if (isSameDay(currentDate, fastTrackCourierDates[f])) {
         ++fCount;
       }
     }
-    for(let a=0;a<acceptedMoneyOrdersDates.length;a++){
-      if(isSameDay(currentDate,acceptedMoneyOrdersDates[a])){
+    for (let a = 0; a < acceptedMoneyOrdersDates.length; a++) {
+      if (isSameDay(currentDate, acceptedMoneyOrdersDates[a])) {
         ++aCount;
       }
     }
@@ -480,8 +544,16 @@ export async function getDataForLineChart(){
   }
 
   let returnArr = [];
-  returnArr.push(minDate.getFullYear() + "/" + (minDate.getMonth() + 1) + "/" + minDate.getDate());
-  returnArr.push(Math.round(((maxDate.getTime()-minDate.getTime())/(1000*3600*24))+1));
+  returnArr.push(
+    minDate.getFullYear() +
+      "/" +
+      (minDate.getMonth() + 1) +
+      "/" +
+      minDate.getDate()
+  );
+  returnArr.push(
+    Math.round((maxDate.getTime() - minDate.getTime()) / (1000 * 3600 * 24) + 1)
+  );
   returnArr.push(normalPostCount);
   returnArr.push(registeredPostCount);
   returnArr.push(logiPostCount);
@@ -489,38 +561,47 @@ export async function getDataForLineChart(){
   returnArr.push(acceptedMoneyOrdersCount);
 
   let nowDate = new Date();
-  console.log(Math.round(((maxDate.getTime()-minDate.getTime())/(1000*3600*24))+1) + " : " + nowDate.getMonth() + " : " + maxDate + " : " + minDate);
+  console.log(
+    Math.round(
+      (maxDate.getTime() - minDate.getTime()) / (1000 * 3600 * 24) + 1
+    ) +
+      " : " +
+      nowDate.getMonth() +
+      " : " +
+      maxDate +
+      " : " +
+      minDate
+  );
 
   return returnArr;
 }
 
-export async function getDailyServices(){
-
-  let retarr = [0,0,0,0,0,0];
-  const collectionRef = collection(db,'MailServiceItem');
+export async function getDailyServices() {
+  let retarr = [0, 0, 0, 0, 0, 0];
+  const collectionRef = collection(db, "MailServiceItem");
   const queryRef = query(collectionRef);
-  
+
   const snapshot = await getDocs(queryRef);
   if (snapshot.empty) {
     return retarr;
   }
-  
+
   let nowDate = new Date();
 
   snapshot.forEach((doc) => {
     const data = doc.data();
     const date = data.timestamp.toDate();
 
-    if(isSameDay(nowDate, date)){
-      if(data.type === "normal post"){
+    if (isSameDay(nowDate, date)) {
+      if (data.type === "normal post") {
         retarr[0]++;
-      }else if(data.type === "registered post"){
+      } else if (data.type === "registered post") {
         retarr[1]++;
-      }else if(data.type === "logi post"){
+      } else if (data.type === "logi post") {
         retarr[2]++;
-      }else if(data.type === "fast track courier"){
+      } else if (data.type === "fast track courier") {
         retarr[3]++;
-      }else if(data.type === "money orders"){
+      } else if (data.type === "money orders") {
         retarr[4]++;
       }
     }
@@ -529,8 +610,10 @@ export async function getDailyServices(){
   return retarr;
 }
 
-function isSameDay(d1, d2){
-  return d1.getFullYear() === d2.getFullYear() &&
+function isSameDay(d1, d2) {
+  return (
+    d1.getFullYear() === d2.getFullYear() &&
     d1.getMonth() === d2.getMonth() &&
-    d1.getDate() === d2.getDate();
+    d1.getDate() === d2.getDate()
+  );
 }

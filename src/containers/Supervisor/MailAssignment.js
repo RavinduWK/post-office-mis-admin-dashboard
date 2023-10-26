@@ -6,6 +6,7 @@ import {
   TableCell,
   TableHead,
   TableRow,
+  Typography,
   Button,
   Select,
   useTheme,
@@ -18,6 +19,7 @@ import {
   fetchSupervisorPostOfficeId,
   updateAssignedPostmanAndStatus,
 } from "../../data/databaseFunctions";
+import LoadingScreen from "../Common/LoadingScreen";
 
 const MailAssignment = () => {
   const theme = useTheme();
@@ -25,9 +27,11 @@ const MailAssignment = () => {
   const [mailItems, setMailItems] = useState([]);
   const [postmanNameMapping, setPostmanNameMapping] = useState({});
   const [postmen, setPostmen] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
+      setLoading(true);
       const postOfficeRegions = await fetchPostOfficeRegions();
       const postOfficeId = await fetchSupervisorPostOfficeId();
       const postmenList = await fetchPostmenForPostOffice(postOfficeId);
@@ -39,12 +43,10 @@ const MailAssignment = () => {
       setPostmen(postmenList);
       const items = await fetchMailItems(postOfficeRegions);
       setMailItems(items);
+      setLoading(false);
     }
     console.log(mailItems);
     fetchData();
-    if (mailItems.length === 0) {
-      alert("Nothing to be assigned!");
-    }
   }, []);
 
   const handlePostmanChange = (event, itemId) => {
@@ -62,15 +64,14 @@ const MailAssignment = () => {
         // Update the mail item's assigned_postman field and set its status to "assigned"
         await updateAssignedPostmanAndStatus(itemId, postmanId);
       }
-
-      alert("Mail assignments and statuses updated successfully!");
     }
-
+    alert("Mail assignments and statuses updated successfully!");
     window.location.reload();
   };
 
   return (
     <Box>
+      {loading && <LoadingScreen text="Loading..." />}
       <h2>Mail Assignments</h2>
       <div>
         <Table
@@ -148,7 +149,18 @@ const MailAssignment = () => {
             ))}
           </TableBody>
         </Table>
-        <Box display="flex" justifyContent="center">
+        <Box
+          display="flex"
+          flexDirection="column"
+          justifyContent="center"
+          alignItems="center"
+          mt={5}
+        >
+          {mailItems.length === 0 && (
+            <Typography variant="h3" sx={{ marginBottom: "40px" }}>
+              Nothing to be assigned ...
+            </Typography>
+          )}
           <Button
             variant="contained"
             onClick={handleConfirmAssignments}

@@ -57,7 +57,7 @@ export const fieldsData = {
     type: "text",
   },
   cost: {
-    label: "Cost",
+    label: "Cost(Rs)",
     id: "cost",
     type: "text",
   },

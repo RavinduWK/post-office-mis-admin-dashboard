@@ -24,6 +24,7 @@ import { db } from "../../config/firebase";
 
 function MailForm({ formTitle, fieldsGroups, selectionGroups, onFormSubmit }) {
   const [formState, setFormState] = useState({});
+  const [formErrors, setFormErrors] = useState({});
   const [recipientCity, setRecipientCity] = useState("");
   const [senderCity, setSenderCity] = useState("");
   const [senderSuggestedAddresses, setSenderSuggestedAddresses] = useState([]);
@@ -90,6 +91,45 @@ function MailForm({ formTitle, fieldsGroups, selectionGroups, onFormSubmit }) {
     fetchAddressesByCity(senderCity, "sender");
   }, [senderCity]);
 
+  const validateField = (id, value) => {
+    let error;
+    if (!value || value.trim() === "") {
+      error = `${id} Required`;
+    }
+    setFormErrors((prevErrors) => ({ ...prevErrors, [id]: error }));
+  };
+
+  const validateForm = () => {
+    let errors = {};
+
+    fieldsGroups.forEach((group) => {
+      group.fields.forEach((field) => {
+        if (!formState[field.id] || formState[field.id].trim() === "") {
+          errors[field.id] = `${field.label} Required`;
+        }
+      });
+    });
+
+    // Check for recipientCity, senderCity, recipientAddressInput, and senderAddressInput
+    if (recipientCity) {
+      delete errors["recipient_city"];
+    }
+    if (senderCity) {
+      delete errors["sender_city"];
+    }
+    if (recipientAddressInput) {
+      delete errors["recipient_address"];
+    }
+    if (senderAddressInput) {
+      delete errors["sender_address"];
+    }
+
+    setFormErrors(errors);
+
+    // Return true if no errors, false otherwise
+    return Object.keys(errors).length === 0;
+  };
+
   const handleChange = (id) => (event) => {
     const value = event.target.value;
     if (id === "recipient_city") {
@@ -104,6 +144,7 @@ function MailForm({ formTitle, fieldsGroups, selectionGroups, onFormSubmit }) {
         [id]: event.target.value,
       });
     }
+    validateField(id, value);
   };
 
   const handleAddressInput = (event) => {
@@ -121,6 +162,14 @@ function MailForm({ formTitle, fieldsGroups, selectionGroups, onFormSubmit }) {
       currentSuggestedAddresses = recipientSuggestedAddresses;
     } else {
       currentSuggestedAddresses = senderSuggestedAddresses;
+    }
+
+    if (type === "recipient") {
+      validateField("recipient_address", recipientAddressInput);
+      console.log(recipientAddressInput);
+    } else {
+      validateField("sender_address", senderAddressInput);
+      console.log(senderAddressInput);
     }
 
     if (inputText === "") {
@@ -164,10 +213,12 @@ function MailForm({ formTitle, fieldsGroups, selectionGroups, onFormSubmit }) {
   };
 
   const handleSubmit = () => {
-    if (typeof onFormSubmit === "function") {
-      onFormSubmit(formState);
-    } else {
-      console.error("onFormSubmit is not a function");
+    if (validateForm()) {
+      if (typeof onFormSubmit === "function") {
+        onFormSubmit(formState);
+      } else {
+        console.error("onFormSubmit is not a function");
+      }
     }
   };
 
@@ -303,6 +354,11 @@ function MailForm({ formTitle, fieldsGroups, selectionGroups, onFormSubmit }) {
                       </Paper>
                     )
                 }
+                {formErrors[field.id] && (
+                  <Typography variant="body2" color="error">
+                    {formErrors[field.id]}
+                  </Typography>
+                )}
               </div>
             ))}
           </div>
