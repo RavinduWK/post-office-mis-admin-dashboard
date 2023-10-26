@@ -6,6 +6,7 @@ import {
   TableCell,
   TableHead,
   TableRow,
+  Typography,
   Button,
   Select,
   useTheme,
@@ -63,10 +64,8 @@ const MailAssignment = () => {
         // Update the mail item's assigned_postman field and set its status to "assigned"
         await updateAssignedPostmanAndStatus(itemId, postmanId);
       }
-
-      alert("Mail assignments and statuses updated successfully!");
     }
-
+    alert("Mail assignments and statuses updated successfully!");
     window.location.reload();
   };
 
@@ -150,7 +149,18 @@ const MailAssignment = () => {
             ))}
           </TableBody>
         </Table>
-        <Box display="flex" justifyContent="center">
+        <Box
+          display="flex"
+          flexDirection="column"
+          justifyContent="center"
+          alignItems="center"
+          mt={5}
+        >
+          {mailItems.length === 0 && (
+            <Typography variant="h3" sx={{ marginBottom: "40px" }}>
+              Nothing to be assigned ...
+            </Typography>
+          )}
           <Button
             variant="contained"
             onClick={handleConfirmAssignments}

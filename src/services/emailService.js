@@ -1,29 +1,38 @@
-const nodemailer = require("nodemailer");
+import React, { useRef } from "react";
+import emailjs from "@emailjs/browser";
 
-// Create a nodemailer transporter
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: "",
-    pass: "",
-  },
-});
+export const ContactUs = () => {
+  const form = useRef();
 
-// Function to send an email
-async function sendEmail({ to, subject, text }) {
-  try {
-    const mailOptions = {
-      from: "ravindutest22@gmail.com",
-      to,
-      subject,
-      text,
-    };
+  const sendEmail = (e) => {
+    e.preventDefault();
 
-    const info = await transporter.sendMail(mailOptions);
-    console.log("Email sent:", info.response);
-  } catch (error) {
-    console.error("Error sending email:", error);
-  }
-}
+    emailjs
+      .sendForm(
+        process.env.REACT_APP_EMAILJS_SERVICE_ID,
+        process.env.REACT_APP_EMAILJS_SENDER_TEMPLATE_ID,
+        form.current,
+        process.env.REACT_APP_EMAILJS_PUBLIC_KEY
+      )
+      .then(
+        (result) => {
+          console.log(result.text);
+        },
+        (error) => {
+          console.log(error.text);
+        }
+      );
+  };
 
-module.exports = { sendEmail };
+  return (
+    <form ref={form} onSubmit={sendEmail}>
+      <label>Name</label>
+      <input type="text" name="user_name" />
+      <label>Email</label>
+      <input type="email" name="user_email" />
+      <label>Message</label>
+      <textarea name="message" />
+      <input type="submit" value="Send" />
+    </form>
+  );
+};

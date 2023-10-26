@@ -102,17 +102,53 @@ const DashboardPostmaster = () => {
 
   return (
     <Box p={4}>
-      <Box>
-        <Typography
-          variant="h2"
-          style={{ flexGrow: 1, textAlign: "center", fontWeight: "bold" }}
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "space-between",
+        }}
+      >
+        <Box>
+          <Typography
+            variant="h2"
+            style={{
+              marginTop: 5,
+              marginLeft: 5,
+              textAlign: "left",
+              fontWeight: "bold",
+            }}
+          >
+            Postmaster Dashboard
+          </Typography>
+        </Box>
+        <Box
+          textAlign="right"
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between",
+            padding: "0.5rem",
+            borderRadius: "4px",
+          }}
         >
-          Supervisor Dashboard
-        </Typography>
-      </Box>
-      <Box textAlign="right">
-        <Typography variant="body1">{date}</Typography>
-        <Typography variant="body1">{time}</Typography>
+          <Typography
+            variant="h4"
+            sx={{
+              fontWeight: "bold",
+              color: theme.palette.text.typography,
+              marginBottom: 2,
+            }}
+          >
+            {date}
+          </Typography>
+          <Typography
+            variant="h3"
+            sx={{ fontWeight: "bold", color: theme.palette.text.typography }}
+          >
+            {time}
+          </Typography>
+        </Box>
       </Box>
 
       <Paper

@@ -73,7 +73,7 @@ const LogiPost = () => {
       setSecurityNumber(securityNumber);
       console.log("Document successfully written with ID: " + mailId);
       navigate("success", {
-        state: { mailId, securityNumber, cost: formState.cost },
+        state: { mailId, securityNumber, cost: formState.cost, type },
       });
     } catch (e) {
       console.error("Error adding document: ", e);
@@ -101,7 +101,7 @@ const LogiPost = () => {
           selectionGroups={[]}
           onFormSubmit={handleSubmit}
         />
-        <CostCalculator />
+        <CostCalculator mailType="logi" />
       </Box>
     </div>
   );

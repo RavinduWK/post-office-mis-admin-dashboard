@@ -44,7 +44,7 @@ const MoneyOrder = () => {
 
       // Step 3: Create a new mail item with the new ID
       const mailId = `${newId}MO`;
-      await setDoc(doc(db, "MailServiceItems", mailId), {
+      await setDoc(doc(db, "MailServiceItem", mailId), {
         ...formState,
         type: "money order",
         paid: false,
@@ -78,7 +78,7 @@ const MoneyOrder = () => {
           selectionGroups={[{ fields: postOfficeFields }]}
           onFormSubmit={handleSubmit}
         />
-        <CostCalculator />
+        <CostCalculator mailType="MoneyOrder" />
       </Box>
     </div>
   );
