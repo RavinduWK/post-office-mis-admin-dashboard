@@ -147,6 +147,27 @@ export async function createMailItem(
   }
 }
 
+export async function createMoneyOrder(
+  mailId,
+  formState,
+  type,
+  receptionistID,
+  securityNumber
+) {
+  const mailItemData = {
+    ...formState,
+    accepted_receptionist: receptionistID,
+    type: type,
+    paid: false,
+    timestamp: new Date(),
+  };
+
+  if (securityNumber) {
+    mailItemData.security_number = securityNumber;
+  }
+  return setDoc(doc(db, "MailServiceItem", mailId), mailItemData);
+}
+
 export async function updateLatestMailId(newId) {
   const docRef = doc(db, "metadata", "mailService");
   return setDoc(docRef, { latestId: newId }, { merge: true });
@@ -315,6 +336,26 @@ export async function fetchRatesForMailType(mailType) {
   });
 
   return ratesData;
+}
+
+export async function fetchUnpaidMailItems() {
+  const q = query(
+    collection(db, "MailServiceItem"),
+    where("paid", "==", false)
+  );
+  const querySnapshot = await getDocs(q);
+
+  let rowData = [];
+  querySnapshot.forEach((doc) => {
+    rowData.push({ pid: doc.id, ...doc.data() });
+  });
+
+  return rowData;
+}
+
+export async function markMailItemAsPaid(pid) {
+  const docRef = doc(db, "MailServiceItem", pid);
+  await updateDoc(docRef, { paid: true });
 }
 
 export async function getEmployeeCount() {

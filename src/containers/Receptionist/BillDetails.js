@@ -102,7 +102,8 @@ const BillDetails = () => {
         ...formState,
         type: "money order",
         paid: false,
-        security_number: generateRandomString(10), // Generate a random 10-digit security number
+        security_number: generateRandomString(10),
+        timestamp: new Date(), // Generate a random 10-digit security number
       });
 
       console.log("Document successfully written with ID: ", mailId);

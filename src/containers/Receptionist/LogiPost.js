@@ -18,7 +18,6 @@ import LoadingScreen from "../Common/LoadingScreen";
 const LogiPost = () => {
   const navigate = useNavigate();
   const [securityNumber, setSecurityNumber] = useState("");
-  const [cost, setCost] = useState("");
   const [loading, setLoading] = useState(false);
 
   const senderFields = [

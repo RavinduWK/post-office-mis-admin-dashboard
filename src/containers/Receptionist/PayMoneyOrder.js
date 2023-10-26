@@ -20,6 +20,10 @@ import {
   doc,
 } from "firebase/firestore";
 import { db } from "../../config/firebase";
+import {
+  fetchUnpaidMailItems,
+  markMailItemAsPaid,
+} from "../../data/databaseFunctions";
 
 const PayMoneyOrder = () => {
   const [rows, setRows] = useState([]);
@@ -31,26 +35,15 @@ const PayMoneyOrder = () => {
   };
 
   useEffect(() => {
-    const q = query(
-      collection(db, "MailServiceItem"),
-      where("paid", "==", false)
-    );
-
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      let rowData = [];
-      querySnapshot.forEach((doc) => {
-        rowData.push({ pid: doc.id, ...doc.data() });
-      });
+    fetchUnpaidMailItems().then((rowData) => {
       setRows(rowData);
     });
-
-    return () => unsubscribe();
   }, []);
 
   const handlePay = async (pid) => {
     try {
-      const docRef = doc(db, "MailServiceItems", pid);
-      await updateDoc(docRef, { paid: true });
+      await markMailItemAsPaid(pid);
+      setRows((prevRows) => prevRows.filter((row) => row.pid !== pid));
       console.log("Payment successful for PID:", pid);
     } catch (e) {
       console.error("Error updating document: ", e);
