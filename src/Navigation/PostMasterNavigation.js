@@ -1,7 +1,5 @@
 import React, { useState } from "react";
 import { Routes, Route } from "react-router-dom";
-import DashBoard from "../containers/Common/Dashboard";
-
 import { ColorModeContext, useMode } from "../styles/theme";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import TopBar from "../components/LayoutComponents/Topbar";

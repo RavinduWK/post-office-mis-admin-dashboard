@@ -8,6 +8,7 @@ import AssignmentIcon from "@mui/icons-material/Assignment";
 import { auth } from "../../config/firebase";
 import { getFirestore, doc, getDoc } from "firebase/firestore";
 import DashboardButton from "../../components/Buttons/DashboardButton";
+import { formatDateAndTime } from "../../services/dateAndTime";
 
 const DashboardReceptionist = () => {
   const theme = useTheme();
@@ -42,71 +43,6 @@ const DashboardReceptionist = () => {
 
     return () => clearInterval(interval);
   }, []);
-
-  const formatDateAndTime = (dateObj) => {
-    // For day of the week
-    const days = [
-      "Sunday",
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday",
-      "Saturday",
-    ];
-    const dayOfWeek = days[dateObj.getDay()];
-
-    // For day of the month (with suffix)
-    const dateOfMonth = dateObj.getDate();
-    let suffix = "th";
-    if (dateOfMonth === 1 || dateOfMonth === 21 || dateOfMonth === 31) {
-      suffix = "st";
-    } else if (dateOfMonth === 2 || dateOfMonth === 22) {
-      suffix = "nd";
-    } else if (dateOfMonth === 3 || dateOfMonth === 23) {
-      suffix = "rd";
-    }
-
-    // For month
-    const months = [
-      "January",
-      "February",
-      "March",
-      "April",
-      "May",
-      "June",
-      "July",
-      "August",
-      "September",
-      "October",
-      "November",
-      "December",
-    ];
-    const monthName = months[dateObj.getMonth()];
-
-    // For year
-    const year = dateObj.getFullYear();
-
-    // For time
-    let hours = dateObj.getHours();
-    const minutes = dateObj.getMinutes().toString().padStart(2, "0");
-    const seconds = dateObj.getSeconds().toString().padStart(2, "0");
-    const ampm = hours >= 12 ? "PM" : "AM";
-
-    // Convert hours from 24-hour to 12-hour format
-    hours = hours % 12;
-    // Convert 0-hour (midnight) to 12-hour format
-    hours = hours ? hours : 12;
-
-    const time = `${hours
-      .toString()
-      .padStart(2, "0")}:${minutes}:${seconds} ${ampm}`;
-
-    return {
-      date: `${dayOfWeek} ${dateOfMonth}${suffix} ${monthName}, ${year}`,
-      time,
-    };
-  };
 
   const { date, time } = formatDateAndTime(currentDateTime);
 

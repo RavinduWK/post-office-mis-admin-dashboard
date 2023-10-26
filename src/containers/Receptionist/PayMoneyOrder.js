@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import {
-  Box,
   Table,
   TableBody,
   TableCell,
@@ -9,17 +8,6 @@ import {
   useTheme,
   Button,
 } from "@mui/material";
-import { moneyOrderData } from "../../data/moneyOrderData";
-import {
-  collection,
-  getFirestore,
-  query,
-  where,
-  onSnapshot,
-  updateDoc,
-  doc,
-} from "firebase/firestore";
-import { db } from "../../config/firebase";
 import {
   fetchUnpaidMailItems,
   markMailItemAsPaid,
