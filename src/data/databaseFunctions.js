@@ -396,19 +396,23 @@ export async function getRevenueData() {
     ];
   }
 
+  const today = new Date();
+  
   snapshot.forEach((doc) => {
     const data = doc.data();
 
-    if (data.type === "normal post") {
-      normalPostRevenue += parseInt(data.cost);
-    } else if (data.type === "registered post") {
-      registeredPostRevenue += parseInt(data.cost);
-    } else if (data.type === "logi post") {
-      logiPostRevenue += parseInt(data.cost);
-    } else if (data.type === "fast track courier") {
-      fastTrackCourierRevenue += parseInt(data.cost);
-    } else if (data.type === "money orders") {
-      acceptedMoneyOrdersRevenue += 100;
+    if(isSameDay(today, data.timestamp.toDate())){
+      if (data.type === "normal post") {
+        normalPostRevenue += parseInt(data.cost);
+      } else if (data.type === "registered post") {
+        registeredPostRevenue += parseInt(data.cost);
+      } else if (data.type === "logi post") {
+        logiPostRevenue += parseInt(data.cost);
+      } else if (data.type === "fast track courier") {
+        fastTrackCourierRevenue += parseInt(data.cost);
+      } else if (data.type === "money order") {
+        acceptedMoneyOrdersRevenue += parseInt(data.cost);
+      }
     }
   });
 
@@ -642,8 +646,12 @@ export async function getDailyServices() {
         retarr[2]++;
       } else if (data.type === "fast track courier") {
         retarr[3]++;
-      } else if (data.type === "money orders") {
-        retarr[4]++;
+      } else if (data.type === "money order") {
+        if(data.paid===false){
+          retarr[4]++;
+        }else if(data.paid===true){
+          retarr[5]++;
+        }
       }
     }
   });
