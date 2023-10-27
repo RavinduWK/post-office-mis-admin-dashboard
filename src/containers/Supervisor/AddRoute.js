@@ -27,8 +27,50 @@ import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import Barcode from "react-barcode";
 import { toJpeg } from "html-to-image";
 import LoadingScreen from "../Common/LoadingScreen";
+import { fetchSupervisorPostOfficeId } from "../../data/databaseFunctions";
 
 const AddRoute = () => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
+  const [po, setpo] = useState("");
+
+  useEffect(() => {
+    let getpoID = async () => {
+      let poID = await fetchSupervisorPostOfficeId();
+
+      setpo(poID);
+    };
+    getpoID();
+  }, []);
+
+  const handleClick = async () => {
+    console.log("clicked");
+    setLoading(true);
+
+    await fetch(`${process.env.REACT_APP_SERVER_LINK}/route?po=${po}`)
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data);
+
+        if (data.status) {
+          setError(false);
+        } else {
+          setError(true);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        setError(true);
+      });
+
+    if (error) {
+      alert("Error in adding routes");
+    } else {
+      alert("Routes added successfully");
+    }
+    setLoading(false);
+  };
+
   return (
     <Box
       display="flex"
@@ -48,14 +90,16 @@ const AddRoute = () => {
       </Box>
 
       <div style={{ width: "40%", marginTop: 40 }}>
-        <LinearProgress
-          variant="indeterminate"
-          style={{
-            backgroundImage:
-              "linear-gradient(90deg, #4CAF50 25%, transparent 25%, transparent 75%, #4CAF50 75%)",
-            backgroundSize: "100px 100%",
-          }}
-        />
+        {loading && (
+          <LinearProgress
+            variant="query"
+            style={{
+              backgroundImage:
+                "linear-gradient(90deg, #4CAF50 25%, transparent 25%, transparent 75%, #4CAF50 75%)",
+              backgroundSize: "100px 100%",
+            }}
+          />
+        )}
       </div>
 
       <Button
@@ -69,6 +113,7 @@ const AddRoute = () => {
           fontSize: "18px",
           borderRadius: "6px",
         }}
+        onClick={handleClick}
       >
         Add Routes
       </Button>
