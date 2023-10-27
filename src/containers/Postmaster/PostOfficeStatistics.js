@@ -25,25 +25,20 @@ const Statistics = () => {
   const [revenueData, setRevenueData] = useState([]);
 
   const setLineChartData = async (event) => {
-    const temp = await getDataForLineChart();
-    setDataForLineChart(temp);
+    setDataForLineChart(await getDataForLineChart());
   };
 
   const setBarChartData = async (event) => {
-    const temp = await getDailyServices();
-    setDataForBarChart(temp);
+    setDataForBarChart(await getDailyServices());
   };
 
   const setRevenue = async (event) => {
-    const temp = await getRevenueData();
-    setRevenueData(temp);
+    setRevenueData(await getRevenueData());
   };
 
-  useEffect(() => {
-    setRevenue();
-    setLineChartData();
-    setBarChartData();
-  }, []);
+  setRevenue();
+  setLineChartData();
+  setBarChartData();
 
   useEffect(() => {
     if (pdfRef.current) {

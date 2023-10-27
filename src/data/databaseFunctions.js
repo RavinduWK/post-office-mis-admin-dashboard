@@ -419,18 +419,16 @@ export async function getRevenueData() {
   snapshot.forEach((doc) => {
     const data = doc.data();
 
-    if (isSameDay(today, data.timestamp.toDate())) {
-      if (data.type === "normal post") {
-        normalPostRevenue += parseInt(data.cost);
-      } else if (data.type === "registered post") {
-        registeredPostRevenue += parseInt(data.cost);
-      } else if (data.type === "logi post") {
-        logiPostRevenue += parseInt(data.cost);
-      } else if (data.type === "fast track courier") {
-        fastTrackCourierRevenue += parseInt(data.cost);
-      } else if (data.type === "money order") {
-        acceptedMoneyOrdersRevenue += parseInt(data.cost);
-      }
+    if (data.type === "normal post") {
+      normalPostRevenue += parseInt(data.cost);
+    } else if (data.type === "registered post") {
+      registeredPostRevenue += parseInt(data.cost);
+    } else if (data.type === "logi post") {
+      logiPostRevenue += parseInt(data.cost);
+    } else if (data.type === "fast track courier") {
+      fastTrackCourierRevenue += parseInt(data.cost);
+    } else if (data.type === "money orders") {
+      acceptedMoneyOrdersRevenue += 100;
     }
   });
 

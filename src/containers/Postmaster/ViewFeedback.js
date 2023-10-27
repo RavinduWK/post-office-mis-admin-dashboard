@@ -20,6 +20,7 @@ const ViewFeedback = () => {
         const feedbacksCollection = collection(db, "Feedback");
         const querySnapshot = await getDocs(feedbacksCollection);
 
+        console.log("HAHAHAHAHAHAHAHAHAHAHA");
         const fetchedFeedbacks = querySnapshot.docs.map((doc) => {
           const data = doc.data();
           return {
