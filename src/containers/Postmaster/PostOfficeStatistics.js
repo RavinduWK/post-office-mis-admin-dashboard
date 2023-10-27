@@ -25,15 +25,18 @@ const Statistics = () => {
   const [revenueData, setRevenueData] = useState([]);
 
   const setLineChartData = async (event) => {
-    setDataForLineChart(await getDataForLineChart());
+    const temp = await getDataForLineChart();
+    setDataForLineChart(temp);
   };
 
   const setBarChartData = async (event) => {
-    setDataForBarChart(await getDailyServices());
+    const temp = await getDailyServices();
+    setDataForBarChart(temp);
   };
 
   const setRevenue = async (event) => {
-    setRevenueData(await getRevenueData());
+    const temp = await getRevenueData();
+    setRevenueData(temp);
   };
 
   setRevenue();
