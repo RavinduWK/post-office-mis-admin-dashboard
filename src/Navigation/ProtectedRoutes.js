@@ -3,7 +3,7 @@ import { Route, Navigate } from "react-router-dom";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { useEffect, useState } from "react";
 import { CircularProgress } from "@mui/material";
-import getUserRole from "../data/getRole"; // Make sure the path is correct
+import { getUserRole } from "../data/databaseFunctions"; // Make sure the path is correct
 
 function ProtectedRoute({ element, roles }) {
   const [authStatus, setAuthStatus] = useState({ isAuth: false, role: null });

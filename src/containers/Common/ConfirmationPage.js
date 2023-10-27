@@ -12,13 +12,17 @@ import {
   DialogTitle,
 } from "@mui/material";
 import Barcode from "react-barcode";
-import { toJpeg } from "html-to-image";
+
 import { useLocation } from "react-router-dom";
-import { jsPDF } from "jspdf";
-import html2canvas from "html2canvas";
-import emailjs from "@emailjs/browser";
+
 import ReceiptTemplate from "../../components/Documents/ReceiptTemplate";
 import LoadingScreen from "./LoadingScreen";
+import { sendEmail } from "../../services/emailService";
+import {
+  generateReceipt,
+  generateBarcode,
+  generateLabel,
+} from "../../services/generatePrintables";
 
 function ConfirmationPage() {
   const [senderEmail, setSendersEmail] = useState("");
@@ -31,113 +35,42 @@ function ConfirmationPage() {
   const barcodeRef = useRef(null);
   const labelRef = useRef(null);
 
-  const handleSendEmail = () => {
+  const handleSendEmail = async () => {
     if (senderEmail.trim() === "") {
       alert("Please enter a recipient's email address.");
       return;
     }
     setLoading(true);
 
-    // Send the email using emailjs
-    emailjs
-      .send(
-        process.env.REACT_APP_EMAILJS_SERVICE_ID,
-        process.env.REACT_APP_EMAILJS_SENDER_TEMPLATE_ID,
-        {
-          to_email: senderEmail,
-          type: type,
-          PID: mailId,
-          security_code: securityNumber,
-        },
-        process.env.REACT_APP_EMAILJS_PUBLIC_KEY
-      )
-      .then(
-        (result) => {
-          setLoading(false);
-          console.log(result.text);
-          setModalMessage("Receipt sent successfully!");
-          setOpen(true);
-        },
-        (error) => {
-          setLoading(false);
-          setModalMessage("Failed to send the receipt. Please try again.");
-          setOpen(true);
-        }
-      );
+    try {
+      const result = await sendEmail(senderEmail, mailId, securityNumber, type);
+      setLoading(false);
+      console.log(result);
+      setModalMessage("Receipt sent successfully!");
+      setOpen(true);
+    } catch (error) {
+      setLoading(false);
+      setModalMessage("Failed to send the receipt. Please try again.");
+      setOpen(true);
+    }
   };
 
   const generatePDF = async () => {
-    const receiptElement = document.getElementById("pdf-receipt");
-
-    // Temporarily make the content visible for html2canvas
-    receiptElement.style.display = "block";
-
-    const canvas = await html2canvas(receiptElement);
-
-    // Hide the content again after the snapshot is taken
-    receiptElement.style.display = "none";
-
-    const imgData = canvas.toDataURL("image/jpeg", 1.0); // using JPEG format (max quality)
-
-    // Define custom PDF size
-    const pdfWidth = 105; // width in mm (A4 size)
-    const pdfHeight = 150; // height in mm (A4 size)
-
-    const pdf = new jsPDF({
-      orientation: "portrait",
-      unit: "mm",
-      format: [pdfWidth, pdfHeight],
-    });
-
-    // Calculate scaling factors for zoom out effect
-    const zoomFactor = 1; // Adjust this value to zoom in or out
-    const imageWidth = ((canvas.width * 25.4) / 96) * zoomFactor; // Convert pixels to mm and apply zoom factor
-    const imageHeight = ((canvas.height * 25.4) / 96) * zoomFactor; // Convert pixels to mm and apply zoom factor
-
-    // Calculate x and y offsets to center the image on the page
-    const offsetX = (pdfWidth - imageWidth) / 2;
-    const offsetY = (pdfHeight - imageHeight) / 2;
-
-    pdf.addImage(imgData, "JPEG", offsetX, offsetY, imageWidth, imageHeight);
-    pdf.save("receipt.pdf");
+    try {
+      const pdfBlob = await generateReceipt();
+      const pdfUrl = URL.createObjectURL(pdfBlob);
+      window.open(pdfUrl, "_blank");
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+    }
   };
 
   const printBarCode = () => {
-    const node = document.createElement("div");
-    node.style.display = "flex";
-    node.style.justifyContent = "center";
-    node.style.alignItems = "center";
-
-    node.style.backgroundColor = "white";
-    node.appendChild(barcodeRef.current.cloneNode(true));
-
-    toJpeg(node, { quality: 0.95, width: 280, height: 160 }).then(function (
-      dataUrl
-    ) {
-      var link = document.createElement("a");
-      link.download = "barcode.jpeg";
-      link.href = dataUrl;
-      link.click();
-    });
+    generateBarcode(barcodeRef);
   };
 
   const printLabel = () => {
-    const node = document.createElement("div");
-    node.style.display = "flex";
-    node.style.justifyContent = "center";
-    node.style.alignItems = "center";
-
-    node.style.backgroundColor = "white";
-    node.appendChild(labelRef.current.cloneNode(true));
-
-    toJpeg(node, { quality: 0.95, width: 100, height: 100 }).then(function (
-      dataUrl
-    ) {
-      var link = document.createElement("a");
-      link.download = "barcode.jpeg";
-      link.href = dataUrl;
-      link.click();
-    });
+    generateLabel(labelRef);
   };
 
   const handleClose = () => {

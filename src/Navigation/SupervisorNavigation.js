@@ -1,7 +1,5 @@
 import React, { useState } from "react";
 import { Routes, Route } from "react-router-dom";
-import DashBoard from "../containers/Common/Dashboard";
-
 import { ColorModeContext, useMode } from "../styles/theme";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import TopBar from "../components/LayoutComponents/Topbar";
@@ -11,6 +9,7 @@ import MailAssignment from "../containers/Supervisor/MailAssignment";
 import MailTransfer from "../containers/Supervisor/MailTransfer";
 import DashboardSupervisor from "../containers/Common/DashboardSupervisor";
 import MailItemsTable from "../containers/Supervisor/MailItems";
+import AddRoute from "../containers/Supervisor/AddRoute";
 import Bundles from "../containers/Supervisor/Bundles";
 
 function SupervisorInterface() {
@@ -43,6 +42,7 @@ function SupervisorInterface() {
               <Route path="mail-assignment" element={<MailAssignment />} />
               <Route path="mail-items" element={<MailItemsTable />} />
               <Route path="mail-transfer" element={<MailTransfer />} />
+              <Route path="add-route" element={<AddRoute />} />
               <Route path="mail-transfer/bundles" element={<Bundles />} />
             </Routes>
           </main>

@@ -99,6 +99,19 @@ export const billPaymentData = {
   },
 };
 
+export const postOfficeID = {
+  acceptedPostofficeID: {
+    label: "Accepted PostOffice ID",
+    id: "accepted_postoffice_id",
+    type: "text",
+  },
+  destinationPostofficeID: {
+    label: "Destination PostOffice ID",
+    id: "destination_postoffice_id",
+    type: "text",
+  },
+};
+
 export const postOfficeData = {
   acceptedPostOffice: {
     label: "Accepted PostOffice",

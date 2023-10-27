@@ -10,6 +10,8 @@ import FeedbackOutlinedIcon from "@mui/icons-material/FeedbackOutlined";
 import QueryStatsOutlinedIcon from "@mui/icons-material/QueryStatsOutlined";
 import { Package, SignOut } from "phosphor-react";
 import AssignmentTurnedInOutlinedIcon from "@mui/icons-material/AssignmentTurnedInOutlined";
+import RouteIcon from "@mui/icons-material/Route";
+import ChecklistRtlIcon from "@mui/icons-material/ChecklistRtl";
 import { Truck } from "phosphor-react";
 
 export const receptionistMenuItems = [
@@ -135,12 +137,17 @@ export const supervisorMenuItems = [
       {
         title: "Mail Items",
         to: "/supervisor/mail-items",
-        icon: <AssignmentTurnedInOutlinedIcon />,
+        icon: <ChecklistRtlIcon />,
       },
       {
         title: "Mail Transfer",
         to: "/supervisor/mail-transfer",
         icon: <Truck size={25} />,
+      },
+      {
+        title: "Add Route",
+        to: "/supervisor/add-route",
+        icon: <RouteIcon size={25} />,
       },
     ],
   },

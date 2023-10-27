@@ -33,12 +33,14 @@ import ProfilePopup from "../../containers/Common/ProfilePage";
 import EditProfile from "../Options/EditProfile";
 import NotificationsDialog from "../Settings/NotificationsDialog";
 import HelpDialog from "../Settings/HelpDialog";
+import { fetchPostOfficeName } from "../../data/databaseFunctions";
 
 const TopBar = ({ isCollapsed, setIsCollapsed, role }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [userDetails, setUserDetails] = useState(null);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
+  const [postOfficeName, setPostOfficeName] = useState(null);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [selectedSetting, setSelectedSetting] = useState("");
@@ -78,6 +80,11 @@ const TopBar = ({ isCollapsed, setIsCollapsed, role }) => {
           const userDoc = await getDoc(doc(db, "employees", user.uid));
           if (userDoc.exists()) {
             setUserDetails(userDoc.data());
+            const postOfficeName = await fetchPostOfficeName(
+              userDoc.data().postoffice
+            );
+
+            setPostOfficeName(postOfficeName);
           } else {
             console.error("No such user!");
           }
@@ -159,7 +166,7 @@ const TopBar = ({ isCollapsed, setIsCollapsed, role }) => {
             marginBottom: "10px",
           }}
         >
-          Post Office - Katubedda
+          Post Office - {postOfficeName ? postOfficeName : "Loading..."}
         </Typography>
       </FlexBetween>
       <FlexBetween gap="1rem">

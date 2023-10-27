@@ -12,6 +12,24 @@ import {
 } from "firebase/firestore";
 import { db, auth } from "../config/firebase";
 
+export async function getUserRole(userId) {
+  try {
+    const db = getFirestore();
+    const userDoc = await getDoc(doc(db, "employees", userId));
+    if (userDoc.exists()) {
+      return userDoc.data().role;
+    } else {
+      console.error("No such user!");
+      return null;
+    }
+  } catch (error) {
+    console.error("Error getting user role:", error);
+    console.error("Error code:", error.code);
+    console.error("Error message:", error.message);
+    return null;
+  }
+}
+
 export async function fetchUserID() {
   try {
     const user = auth.currentUser;
@@ -147,6 +165,27 @@ export async function createMailItem(
   }
 }
 
+export async function createMoneyOrder(
+  mailId,
+  formState,
+  type,
+  receptionistID,
+  securityNumber
+) {
+  const mailItemData = {
+    ...formState,
+    accepted_receptionist: receptionistID,
+    type: type,
+    paid: false,
+    timestamp: new Date(),
+  };
+
+  if (securityNumber) {
+    mailItemData.security_number = securityNumber;
+  }
+  return setDoc(doc(db, "MailServiceItem", mailId), mailItemData);
+}
+
 export async function updateLatestMailId(newId) {
   const docRef = doc(db, "metadata", "mailService");
   return setDoc(docRef, { latestId: newId }, { merge: true });
@@ -203,6 +242,28 @@ export async function fetchMailItems(postofficeRegions) {
   }
 
   return enhancedMailItems;
+}
+
+export async function fetchPostOfficeName(postOfficeId) {
+  try {
+    if (!postOfficeId) {
+      console.error("Post office ID is missing.");
+      return "Post Office Name Missing";
+    }
+
+    const postOfficeDocRef = doc(db, "Postoffice", postOfficeId);
+    const postOfficeDocSnap = await getDoc(postOfficeDocRef);
+
+    if (postOfficeDocSnap.exists()) {
+      return postOfficeDocSnap.data().Name;
+    } else {
+      console.error("Post office not found!");
+      return "Post Office Not Found";
+    }
+  } catch (error) {
+    console.error("Error fetching post office name:", error);
+    return "Error Fetching Post Office Name";
+  }
 }
 
 export async function fetchPostmenForPostOffice(postOfficeId) {
@@ -317,6 +378,26 @@ export async function fetchRatesForMailType(mailType) {
   return ratesData;
 }
 
+export async function fetchUnpaidMailItems() {
+  const q = query(
+    collection(db, "MailServiceItem"),
+    where("paid", "==", false)
+  );
+  const querySnapshot = await getDocs(q);
+
+  let rowData = [];
+  querySnapshot.forEach((doc) => {
+    rowData.push({ pid: doc.id, ...doc.data() });
+  });
+
+  return rowData;
+}
+
+export async function markMailItemAsPaid(pid) {
+  const docRef = doc(db, "MailServiceItem", pid);
+  await updateDoc(docRef, { paid: true });
+}
+
 export async function getEmployeeCount() {
   return (await getCountFromServer(collection(db, "employees"))).data().count;
 }
@@ -355,19 +436,23 @@ export async function getRevenueData() {
     ];
   }
 
+  const today = new Date();
+
   snapshot.forEach((doc) => {
     const data = doc.data();
 
-    if (data.type === "normal post") {
-      normalPostRevenue += parseInt(data.cost);
-    } else if (data.type === "registered post") {
-      registeredPostRevenue += parseInt(data.cost);
-    } else if (data.type === "logi post") {
-      logiPostRevenue += parseInt(data.cost);
-    } else if (data.type === "fast track courier") {
-      fastTrackCourierRevenue += parseInt(data.cost);
-    } else if (data.type === "money orders") {
-      acceptedMoneyOrdersRevenue += 100;
+    if (isSameDay(today, data.timestamp.toDate())) {
+      if (data.type === "normal post") {
+        normalPostRevenue += parseInt(data.cost);
+      } else if (data.type === "registered post") {
+        registeredPostRevenue += parseInt(data.cost);
+      } else if (data.type === "logi post") {
+        logiPostRevenue += parseInt(data.cost);
+      } else if (data.type === "fast track courier") {
+        fastTrackCourierRevenue += parseInt(data.cost);
+      } else if (data.type === "money order") {
+        acceptedMoneyOrdersRevenue += parseInt(data.cost);
+      }
     }
   });
 
@@ -601,8 +686,12 @@ export async function getDailyServices() {
         retarr[2]++;
       } else if (data.type === "fast track courier") {
         retarr[3]++;
-      } else if (data.type === "money orders") {
-        retarr[4]++;
+      } else if (data.type === "money order") {
+        if (data.paid === false) {
+          retarr[4]++;
+        } else if (data.paid === true) {
+          retarr[5]++;
+        }
       }
     }
   });

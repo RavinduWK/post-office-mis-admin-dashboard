@@ -17,7 +17,7 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../config/firebase";
-import getUserRole from "../../data/getRole";
+import { getUserRole } from "../../data/databaseFunctions";
 import LoadingScreen from "./LoadingScreen";
 
 const Login = () => {
