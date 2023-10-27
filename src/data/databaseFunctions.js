@@ -155,9 +155,9 @@ export async function createMailItem(
     console.log(regionID);
 
     if (postOfficeRegions.includes(regionID)) {
-      mailItemData.status = "To be delivered";
+      mailItemData.status = "To be Delivered";
     } else {
-      mailItemData.status = "To be bundled";
+      mailItemData.status = "To be Bundled";
     }
     mailItemData.assigned_postman = assignedPostman;
 
@@ -196,7 +196,7 @@ export async function fetchMailItems(postofficeRegions) {
   const mailItemsQuery = query(
     collection(db, "MailServiceItem"),
     where("type", "in", ["normal post", "registered post", "logi post"]),
-    where("status", "in", ["To be delivered", "Pending"])
+    where("status", "in", ["To be Delivered", "Pending"])
   );
 
   const mailItemsSnapshot = await getDocs(mailItemsQuery);
@@ -328,7 +328,7 @@ export async function updateAssignedPostmanAndStatus(itemId, postmanId) {
     // Update the assigned_postman field with the provided postmanId and set the status to "assigned"
     await setDoc(
       mailItemRef,
-      { assigned_postman: postmanId, status: "assigned" },
+      { assigned_postman: postmanId, status: "Assigned" },
       { merge: true }
     );
 

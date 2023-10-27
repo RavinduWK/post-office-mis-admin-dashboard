@@ -27,7 +27,7 @@ import LoadingScreen from "../Common/LoadingScreen";
 
 const getStatusColor = (status) => {
   switch (status) {
-    case "assigned":
+    case "Assigned":
       return "green";
     case "OutForDelivery":
       return "orange";
@@ -67,7 +67,7 @@ const MailItemsTable = () => {
       const postofficeRegions = await fetchPostOfficeRegions();
 
       const statusList = [
-        "assigned",
+        "Assigned",
         "OutForDelivery",
         "TobeReturned",
         "Delivered",
@@ -197,7 +197,7 @@ const MailItemsTable = () => {
             <MenuItem value="">
               <em>None</em>
             </MenuItem>
-            <MenuItem value="assigned">assigned</MenuItem>
+            <MenuItem value="Assigned">assigned</MenuItem>
             <MenuItem value="To be Returned">To be Returned</MenuItem>
             <MenuItem value="Out for Delivery">Out for Delivery</MenuItem>
             <MenuItem value="Delivery Cancelled">Delivery Cancelled</MenuItem>
