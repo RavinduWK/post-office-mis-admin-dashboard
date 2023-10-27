@@ -244,6 +244,28 @@ export async function fetchMailItems(postofficeRegions) {
   return enhancedMailItems;
 }
 
+export async function fetchPostOfficeName(postOfficeId) {
+  try {
+    if (!postOfficeId) {
+      console.error("Post office ID is missing.");
+      return "Post Office Name Missing";
+    }
+
+    const postOfficeDocRef = doc(db, "Postoffice", postOfficeId);
+    const postOfficeDocSnap = await getDoc(postOfficeDocRef);
+
+    if (postOfficeDocSnap.exists()) {
+      return postOfficeDocSnap.data().Name;
+    } else {
+      console.error("Post office not found!");
+      return "Post Office Not Found";
+    }
+  } catch (error) {
+    console.error("Error fetching post office name:", error);
+    return "Error Fetching Post Office Name";
+  }
+}
+
 export async function fetchPostmenForPostOffice(postOfficeId) {
   const postmenQuery = query(
     collection(db, "employees"),
