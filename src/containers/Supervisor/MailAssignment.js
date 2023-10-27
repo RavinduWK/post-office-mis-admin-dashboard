@@ -20,9 +20,11 @@ import {
   updateAssignedPostmanAndStatus,
 } from "../../data/databaseFunctions";
 import LoadingScreen from "../Common/LoadingScreen";
+import { useNavigate } from "react-router-dom";
 
 const MailAssignment = () => {
   const theme = useTheme();
+  const navigate = useNavigate();
   const [selectedPostmen, setSelectedPostmen] = useState({});
   const [mailItems, setMailItems] = useState([]);
   const [postmanNameMapping, setPostmanNameMapping] = useState({});
@@ -66,7 +68,7 @@ const MailAssignment = () => {
       }
     }
     alert("Mail assignments and statuses updated successfully!");
-    window.location.reload();
+    navigate("mail-assignment");
   };
 
   return (
