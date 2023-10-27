@@ -39,9 +39,11 @@ const Statistics = () => {
     setRevenueData(temp);
   };
 
-  setRevenue();
-  setLineChartData();
-  setBarChartData();
+  useEffect(() => {
+    setRevenue();
+    setLineChartData();
+    setBarChartData();
+  },[]);
 
   useEffect(() => {
     if (pdfRef.current) {
