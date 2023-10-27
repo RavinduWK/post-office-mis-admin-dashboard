@@ -63,7 +63,6 @@ const MailAssignment = () => {
       const itemId = item.id;
       const postmanId = selectedPostmen[itemId] || item.assigned_postman;
       if (postmanId) {
-        // Update the mail item's assigned_postman field and set its status to "assigned"
         await updateAssignedPostmanAndStatus(itemId, postmanId);
       }
     }

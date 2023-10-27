@@ -38,7 +38,7 @@ const fetchMailItems = async () => {
   const q = query(
     mailServiceItemRef,
     where("type", "in", ["normal post", "registered post", "logi post"]),
-    where("status", "==", "To be bundled")
+    where("status", "==", "To be Bundled")
   );
   const querySnapshot = await getDocs(q);
 
