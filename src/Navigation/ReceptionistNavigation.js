@@ -1,11 +1,9 @@
 import React, { useState } from "react";
 import { Routes, Route } from "react-router-dom";
-import DashBoard from "../containers/Common/Dashboard";
 import NormalPost from "../containers/Receptionist/NormalPost";
 import { ColorModeContext, useMode } from "../styles/theme";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import TopBar from "../components/LayoutComponents/Topbar";
-
 import RegisteredPost from "../containers/Receptionist/RegisteredPost";
 import MoneyOrder from "../containers/Receptionist/MoneyOrder";
 import PayMoneyOrder from "../containers/Receptionist/PayMoneyOrder";

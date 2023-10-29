@@ -20,9 +20,11 @@ import {
   updateAssignedPostmanAndStatus,
 } from "../../data/databaseFunctions";
 import LoadingScreen from "../Common/LoadingScreen";
+import { useNavigate } from "react-router-dom";
 
 const MailAssignment = () => {
   const theme = useTheme();
+  const navigate = useNavigate();
   const [selectedPostmen, setSelectedPostmen] = useState({});
   const [mailItems, setMailItems] = useState([]);
   const [postmanNameMapping, setPostmanNameMapping] = useState({});
@@ -61,12 +63,11 @@ const MailAssignment = () => {
       const itemId = item.id;
       const postmanId = selectedPostmen[itemId] || item.assigned_postman;
       if (postmanId) {
-        // Update the mail item's assigned_postman field and set its status to "assigned"
         await updateAssignedPostmanAndStatus(itemId, postmanId);
       }
     }
     alert("Mail assignments and statuses updated successfully!");
-    window.location.reload();
+    navigate("mail-assignment");
   };
 
   return (

@@ -12,6 +12,24 @@ import {
 } from "firebase/firestore";
 import { db, auth } from "../config/firebase";
 
+export async function getUserRole(userId) {
+  try {
+    const db = getFirestore();
+    const userDoc = await getDoc(doc(db, "employees", userId));
+    if (userDoc.exists()) {
+      return userDoc.data().role;
+    } else {
+      console.error("No such user!");
+      return null;
+    }
+  } catch (error) {
+    console.error("Error getting user role:", error);
+    console.error("Error code:", error.code);
+    console.error("Error message:", error.message);
+    return null;
+  }
+}
+
 export async function fetchUserID() {
   try {
     const user = auth.currentUser;
@@ -137,9 +155,9 @@ export async function createMailItem(
     console.log(regionID);
 
     if (postOfficeRegions.includes(regionID)) {
-      mailItemData.status = "To be delivered";
+      mailItemData.status = "To be Delivered";
     } else {
-      mailItemData.status = "To be bundled";
+      mailItemData.status = "To be Bundled";
     }
     mailItemData.assigned_postman = assignedPostman;
 
@@ -178,7 +196,7 @@ export async function fetchMailItems(postofficeRegions) {
   const mailItemsQuery = query(
     collection(db, "MailServiceItem"),
     where("type", "in", ["normal post", "registered post", "logi post"]),
-    where("status", "in", ["To be delivered", "Pending"])
+    where("status", "in", ["To be Delivered", "Pending"])
   );
 
   const mailItemsSnapshot = await getDocs(mailItemsQuery);
@@ -224,6 +242,28 @@ export async function fetchMailItems(postofficeRegions) {
   }
 
   return enhancedMailItems;
+}
+
+export async function fetchPostOfficeName(postOfficeId) {
+  try {
+    if (!postOfficeId) {
+      console.error("Post office ID is missing.");
+      return "Post Office Name Missing";
+    }
+
+    const postOfficeDocRef = doc(db, "Postoffice", postOfficeId);
+    const postOfficeDocSnap = await getDoc(postOfficeDocRef);
+
+    if (postOfficeDocSnap.exists()) {
+      return postOfficeDocSnap.data().Name;
+    } else {
+      console.error("Post office not found!");
+      return "Post Office Not Found";
+    }
+  } catch (error) {
+    console.error("Error fetching post office name:", error);
+    return "Error Fetching Post Office Name";
+  }
 }
 
 export async function fetchPostmenForPostOffice(postOfficeId) {
@@ -288,7 +328,7 @@ export async function updateAssignedPostmanAndStatus(itemId, postmanId) {
     // Update the assigned_postman field with the provided postmanId and set the status to "assigned"
     await setDoc(
       mailItemRef,
-      { assigned_postman: postmanId, status: "assigned" },
+      { assigned_postman: postmanId, status: "Assigned" },
       { merge: true }
     );
 
@@ -396,19 +436,23 @@ export async function getRevenueData() {
     ];
   }
 
+  const today = new Date();
+
   snapshot.forEach((doc) => {
     const data = doc.data();
 
-    if (data.type === "normal post") {
-      normalPostRevenue += parseInt(data.cost);
-    } else if (data.type === "registered post") {
-      registeredPostRevenue += parseInt(data.cost);
-    } else if (data.type === "logi post") {
-      logiPostRevenue += parseInt(data.cost);
-    } else if (data.type === "fast track courier") {
-      fastTrackCourierRevenue += parseInt(data.cost);
-    } else if (data.type === "money orders") {
-      acceptedMoneyOrdersRevenue += 100;
+    if (isSameDay(today, data.timestamp.toDate())) {
+      if (data.type === "normal post") {
+        normalPostRevenue += parseInt(data.cost);
+      } else if (data.type === "registered post") {
+        registeredPostRevenue += parseInt(data.cost);
+      } else if (data.type === "logi post") {
+        logiPostRevenue += parseInt(data.cost);
+      } else if (data.type === "fast track courier") {
+        fastTrackCourierRevenue += parseInt(data.cost);
+      } else if (data.type === "money order") {
+        acceptedMoneyOrdersRevenue += parseInt(data.cost);
+      }
     }
   });
 
@@ -642,8 +686,12 @@ export async function getDailyServices() {
         retarr[2]++;
       } else if (data.type === "fast track courier") {
         retarr[3]++;
-      } else if (data.type === "money orders") {
-        retarr[4]++;
+      } else if (data.type === "money order") {
+        if (data.paid === false) {
+          retarr[4]++;
+        } else if (data.paid === true) {
+          retarr[5]++;
+        }
       }
     }
   });

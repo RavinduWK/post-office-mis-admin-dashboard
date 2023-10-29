@@ -1,7 +1,5 @@
 import React, { useState } from "react";
 import { Routes, Route } from "react-router-dom";
-import DashBoard from "../containers/Common/Dashboard";
-
 import { ColorModeContext, useMode } from "../styles/theme";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import TopBar from "../components/LayoutComponents/Topbar";
@@ -13,7 +11,6 @@ import DashboardSupervisor from "../containers/Common/DashboardSupervisor";
 import MailItemsTable from "../containers/Supervisor/MailItems";
 import AddRoute from "../containers/Supervisor/AddRoute";
 import Bundles from "../containers/Supervisor/Bundles";
-
 
 function SupervisorInterface() {
   const [theme, colorMode] = useMode();
