@@ -195,6 +195,11 @@ const MailTransfer = () => {
   }, []);
 
   const handleCreateBundle = async () => {
+    const currentDate = new Date();
+    const day = currentDate.getDate().toString().padStart(2, "0");
+    const month = (currentDate.getMonth() + 1).toString().padStart(2, "0"); // Adding 1 because months are zero-indexed
+    const year = currentDate.getFullYear().toString();
+
     const firstDistrict = Object.keys(mailData)[0];
 
     const destinationPostOfficeId = await fetchMainPostOfficeIdByDistrict(
@@ -227,11 +232,6 @@ const MailTransfer = () => {
     // Navigate to the new page
     navigate(`${location.pathname}/bundles`);
   };
-
-  const currentDate = new Date();
-  const day = currentDate.getDate().toString().padStart(2, "0");
-  const month = (currentDate.getMonth() + 1).toString().padStart(2, "0"); // Adding 1 because months are zero-indexed
-  const year = currentDate.getFullYear().toString();
 
   return (
     <Box>
