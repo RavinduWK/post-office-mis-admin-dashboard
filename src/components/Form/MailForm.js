@@ -166,10 +166,8 @@ function MailForm({ formTitle, fieldsGroups, selectionGroups, onFormSubmit }) {
 
     if (type === "recipient") {
       validateField("recipient_address", recipientAddressInput);
-      console.log(recipientAddressInput);
     } else {
       validateField("sender_address", senderAddressInput);
-      console.log(senderAddressInput);
     }
 
     if (inputText === "") {

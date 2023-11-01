@@ -47,7 +47,7 @@ export async function fetchUserID() {
 export async function fetchPostOfficeRegions() {
   try {
     const user = auth.currentUser;
-    console.log("User:", user);
+
     if (!user) {
       console.error("No user logged in!");
       return [];
@@ -152,7 +152,6 @@ export async function createMailItem(
 
   if (addressDocSnapshot.exists()) {
     const regionID = addressDocSnapshot.data().RegionID;
-    console.log(regionID);
 
     if (postOfficeRegions.includes(regionID)) {
       mailItemData.status = "To be Delivered";
@@ -209,8 +208,6 @@ export async function fetchMailItems(postofficeRegions) {
   const enhancedMailItems = [];
 
   for (let item of allMailItems) {
-    console.log("Processing receiver_address_id:", item.receiver_address_id);
-
     // Skip items with an undefined receiver_address_id
     if (!item.receiver_address_id) {
       console.warn("Skipped item with undefined receiver_address_id:", item);
@@ -330,10 +327,6 @@ export async function updateAssignedPostmanAndStatus(itemId, postmanId) {
       mailItemRef,
       { assigned_postman: postmanId, status: "Assigned" },
       { merge: true }
-    );
-
-    console.log(
-      `Mail item ${itemId} updated with postman ${postmanId} and status set to assigned`
     );
   } catch (error) {
     console.error("Error updating assigned postman:", error);

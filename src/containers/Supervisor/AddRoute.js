@@ -44,7 +44,6 @@ const AddRoute = () => {
   }, []);
 
   const handleClick = async () => {
-    console.log("clicked");
     setLoading(true);
 
     await fetch(`${process.env.REACT_APP_SERVER_LINK}/route?po=${po}`)

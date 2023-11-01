@@ -47,8 +47,6 @@ const fetchMailItems = async () => {
     id: doc.id, // This includes the document ID in the object
   }));
 
-  console.log("Fetched mail items:", mailItems);
-
   return mailItems;
 };
 
@@ -188,7 +186,6 @@ const MailTransfer = () => {
         }
       }
 
-      console.log("Classified data by district:", districtClassifiedData);
       setMailData(districtClassifiedData);
       setMailItems(mailItems);
       setLoading(false);
@@ -200,7 +197,6 @@ const MailTransfer = () => {
   const handleCreateBundle = async () => {
     const firstDistrict = Object.keys(mailData)[0];
 
-    console.log(firstDistrict);
     const destinationPostOfficeId = await fetchMainPostOfficeIdByDistrict(
       firstDistrict
     );
@@ -232,7 +228,11 @@ const MailTransfer = () => {
     // Navigate to the new page
     navigate(`${location.pathname}/bundles`);
   };
-  console.log("Current state of mailData:", mailData);
+
+  const currentDate = new Date();
+  const day = currentDate.getDate().toString().padStart(2, "0");
+  const month = (currentDate.getMonth() + 1).toString().padStart(2, "0"); // Adding 1 because months are zero-indexed
+  const year = currentDate.getFullYear().toString();
 
   return (
     <Box>
@@ -244,7 +244,7 @@ const MailTransfer = () => {
             key={index}
             to={district}
             mailItems={items} // Changed from numberOfItems to mailItems
-            date={new Date().toISOString().slice(0, 10)}
+            date={day + month + year}
           />
         ))}
       </Box>
