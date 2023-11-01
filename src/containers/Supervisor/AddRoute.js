@@ -23,7 +23,6 @@ const AddRoute = () => {
   }, []);
 
   const handleClick = async () => {
-    console.log("clicked");
     setLoading(true);
 
     let token = await auth.currentUser.getIdToken();
