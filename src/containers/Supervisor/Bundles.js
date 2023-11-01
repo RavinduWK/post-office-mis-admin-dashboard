@@ -9,7 +9,7 @@ import {
   useTheme,
   Button,
 } from "@mui/material";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "../../config/firebase";
 import Barcode from "react-barcode";
 import { toJpeg } from "html-to-image";
@@ -43,7 +43,15 @@ const Bundles = () => {
   useEffect(() => {
     const fetchBundles = async () => {
       setLoading(true);
-      const bundlesSnapshot = await getDocs(collection(db, "Bundle"));
+      const today = new Date();
+      const day = String(today.getDate()).padStart(2, "0");
+      const month = String(today.getMonth() + 1).padStart(2, "0"); // Months are zero-based
+      const year = today.getFullYear();
+      const todayDate = `${day}${month}${year}`;
+
+      const q = query(collection(db, "Bundle"), where("date", "==", todayDate));
+
+      const bundlesSnapshot = await getDocs(q);
       const bundlesData = bundlesSnapshot.docs.map((doc) => ({
         ...doc.data(),
         id: doc.id,
