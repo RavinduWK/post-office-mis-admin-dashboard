@@ -208,7 +208,7 @@ const MailTransfer = () => {
       return; // If the post office ID is not found, exit the function early.
     }
     const bundleData = {
-      date: new Date().toISOString(),
+      date: day + month + year,
       destination_post_office_id: destinationPostOfficeId,
       mail_service_items: Object.values(mailData).flatMap((districtMailData) =>
         districtMailData.map((item) => item.PID)
@@ -217,7 +217,6 @@ const MailTransfer = () => {
       status: "Queued",
     };
 
-    console.log(bundleData);
     // Add new document to the "Bundle" collection
     const newBundleDocRef = await addDoc(collection(db, "Bundle"), bundleData);
 
@@ -244,7 +243,7 @@ const MailTransfer = () => {
             key={index}
             to={district}
             mailItems={items} // Changed from numberOfItems to mailItems
-            date={day + month + year}
+            date={new Date().toISOString().slice(0, 10)}
           />
         ))}
       </Box>
